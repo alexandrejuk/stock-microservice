@@ -8,6 +8,10 @@ class Product {
     return product
   }
 
+  async getById(id) {
+    return await ProductModel.findById(id)
+  }
+
 }
 
 module.exports = Product

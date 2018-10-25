@@ -1,10 +1,10 @@
-const productDomain = require('./Product')
-const stockDomain = require('./Stock')
-const stockLocationDomain = require('./StockLocation')
+const ProductDomain = require('./Product')
+const StockDomain = require('./Stock')
+const StockLocationDomain = require('./StockLocation')
 
 module.exports = {
-  productDomain,
-  stockDomain,
-  stockLocationDomain,
-  
+  ProductDomain,
+  StockDomain,
+  StockLocationDomain,
+
 }

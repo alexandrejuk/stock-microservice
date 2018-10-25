@@ -13,11 +13,33 @@ const sequelize = new Sequelize('postgres', 'postgres', 'postgres', {
 });
 
 const Product = sequelize.define('product', {
-  name: Sequelize.STRING,
+  name: {
+    type: Sequelize.STRING,
+    set(val) {
+      this.setDataValue('name', val.toUpperCase());
+    }  
+  }
 })
 
 const StockLocation = sequelize.define('stockLocation', {
-  name: Sequelize.STRING,
+  name: {
+    type: Sequelize.STRING,
+    set(val) {
+      this.setDataValue('name', val.toUpperCase());
+    }  
+  }
+})
+
+const Stock = sequelize.define('stock', {
+  quantity: Sequelize.INTEGER,
+})
+
+Stock.belongsTo(Product, {
+  constraints: false,
+})
+
+Stock.belongsTo(StockLocation, {
+  constraints: false,
 })
 
 module.exports = sequelize

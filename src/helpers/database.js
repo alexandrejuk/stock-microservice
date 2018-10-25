@@ -5,7 +5,7 @@ const isDatabaseConnected = () => db
 
 const forceCreateTables = () =>
   isDatabaseConnected()
-  .then(() => db.sync({ sync: true }))
+  .then(() => db.sync({ force: true }))
 
 module.exports = {
   isDatabaseConnected,
