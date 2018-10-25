@@ -3,8 +3,8 @@ const StockLocationModel = db.model('stockLocation')
 
 class StockLocation {
   
-  async add(stockLocationData) {
-    const stockLocation = await StockLocationModel.create(stockLocationData)
+  async add(stockLocationData, { transaction } = {}) {
+    const stockLocation = await StockLocationModel.create(stockLocationData, transaction)
     return stockLocation
   }
 }
