@@ -1,0 +1,6 @@
+#!/usr/bin/env node
+const databaseHelper = require('../src/helpers/database')
+
+databaseHelper
+  .forceCreateTables()
+  .then(() => process.exit(0))

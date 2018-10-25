@@ -1,0 +1,22 @@
+{
+  "name": "stock-microservices",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "ava": "^0.25.0",
+    "body-parser": "^1.18.3",
+    "cors": "^2.8.4",
+    "express": "^4.16.4",
+    "pg": "^7.5.0",
+    "pg-hstore": "^2.3.2",
+    "sequelize": "^4.41.0"
+  },
+  "scripts": {
+    "start:dev": "nodemon ./src/app.js",
+    "test": "./scripts/createTable && ava"
+  },
+  "devDependencies": {
+    "nodemon": "^1.18.4"
+  }
+}
