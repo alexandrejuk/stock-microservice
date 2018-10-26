@@ -9,7 +9,7 @@ class Product {
   }
 
   async getById(id) {
-    return await ProductModel.findById(id)
+    return await ProductModel.findByPk(id)
   }
 
 }
