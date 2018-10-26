@@ -3,6 +3,7 @@ const StockLocation = require('./')
 const databaseHelper = require('../../helpers/database')
 
 const stockLocationDomain = new StockLocation()
+const stockLocationMock = { name: 'amazon' }
 
 test.before(databaseHelper.isDatabaseConnected)
 
@@ -12,13 +13,13 @@ test('Should be a stockLocation instance', t => {
 })
 
 test('Should add a new stockLocaton', async t => {
-  const stockLocationData = { name: 'amazon' }
+  const stockLocationData = stockLocationMock
   const createdStockLocation = await stockLocationDomain.add(stockLocationData)
   t.is(stockLocationData.name.toUpperCase(),  createdStockLocation.name)
 })
 
 test('Should find a stock location by its id', async t => {
-  const stockLocationData = { name: 'amazon' }
+  const stockLocationData = stockLocationMock
   const createdStockLocation = await stockLocationDomain.add(stockLocationData)
 
   const foundStockLocation = await stockLocationDomain.getById(createdStockLocation.id)
