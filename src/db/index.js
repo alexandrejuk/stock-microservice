@@ -18,7 +18,31 @@ const Product = sequelize.define('product', {
     set(val) {
       this.setDataValue('name', val.toUpperCase());
     }  
-  }
+  },
+  brand: {
+    type: Sequelize.STRING,
+    set(val) {
+      this.setDataValue('brand', val.toUpperCase());
+    }  
+  },
+  category: {
+    type: Sequelize.STRING,
+    set(val) {
+      this.setDataValue('category', val.toUpperCase());
+    }  
+  },
+  sku: {
+    type: Sequelize.STRING 
+  },
+  serialControl: {
+    type: Sequelize.BOOLEAN 
+  },
+  priceBuy: {
+    type: Sequelize.INTEGER 
+  },
+  priceSell: {
+    type: Sequelize.INTEGER 
+  },
 })
 
 const StockLocation = sequelize.define('stockLocation', {

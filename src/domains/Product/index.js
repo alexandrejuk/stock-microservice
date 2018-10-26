@@ -4,8 +4,7 @@ const ProductModel = db.model('product')
 class Product {
   
   async add(productData, { transaction } = {}) {
-    const product = await ProductModel.create(productData, { transaction })
-    return product
+    return await ProductModel.create(productData, { transaction })
   }
 
   async getById(id) {
