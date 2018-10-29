@@ -54,6 +54,31 @@ const StockLocation = sequelize.define('stockLocation', {
   }
 })
 
+const Order = sequelize.define('order', {
+  description: {
+    type: Sequelize.STRING,
+    set(val) {
+      this.setDataValue('description', val.toUpperCase());
+    }  
+  },
+  reason: {
+    type: Sequelize.STRING,
+    set(val) {
+      this.setDataValue('reason', val.toUpperCase());
+    }  
+  },
+  status: {
+    type: Sequelize.STRING,
+    set(val) {
+      this.setDataValue('status', val.toUpperCase());
+    }  
+  }
+})
+
+Order.belongsTo(StockLocation, {
+  constraints: false,
+})
+
 const Stock = sequelize.define('stock', {
   quantity: Sequelize.INTEGER,
 })
