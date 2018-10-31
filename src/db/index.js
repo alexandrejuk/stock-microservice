@@ -1,4 +1,5 @@
-const Sequelize = require('sequelize');
+const Sequelize = require('sequelize')
+const models = require('./models')
 const sequelize = new Sequelize('postgres', 'postgres', 'postgres', {
   host: 'localhost',
   dialect: 'postgres',
@@ -10,85 +11,14 @@ const sequelize = new Sequelize('postgres', 'postgres', 'postgres', {
     acquire: 30000,
     idle: 10000
   },
-});
-
-const Product = sequelize.define('product', {
-  name: {
-    type: Sequelize.STRING,
-    set(val) {
-      this.setDataValue('name', val.toUpperCase());
-    }  
-  },
-  brand: {
-    type: Sequelize.STRING,
-    set(val) {
-      this.setDataValue('brand', val.toUpperCase());
-    }  
-  },
-  category: {
-    type: Sequelize.STRING,
-    set(val) {
-      this.setDataValue('category', val.toUpperCase());
-    }  
-  },
-  sku: {
-    type: Sequelize.STRING 
-  },
-  serialControl: {
-    type: Sequelize.BOOLEAN 
-  },
-  priceBuy: {
-    type: Sequelize.INTEGER 
-  },
-  priceSell: {
-    type: Sequelize.INTEGER 
-  },
 })
 
-const StockLocation = sequelize.define('stockLocation', {
-  name: {
-    type: Sequelize.STRING,
-    set(val) {
-      this.setDataValue('name', val.toUpperCase());
-    }  
-  }
-})
-
-const Order = sequelize.define('order', {
-  description: {
-    type: Sequelize.STRING,
-    set(val) {
-      this.setDataValue('description', val.toUpperCase());
-    }  
-  },
-  reason: {
-    type: Sequelize.STRING,
-    set(val) {
-      this.setDataValue('reason', val.toUpperCase());
-    }  
-  },
-  status: {
-    type: Sequelize.STRING,
-    set(val) {
-      this.setDataValue('status', val.toUpperCase());
-    }  
-  }
-})
-
-Order.belongsTo(StockLocation, {
-  constraints: false,
-})
-
-const Stock = sequelize.define('stock', {
-  quantity: Sequelize.INTEGER,
-})
-
-Stock.belongsTo(Product, {
-  constraints: false,
-})
-
-Stock.belongsTo(StockLocation, {
-  constraints: false,
-})
-
+const modelInstances = models.map(model => model(sequelize))
+modelInstances
+  .forEach(
+    modelInstance => 
+      modelInstance.associate && 
+      modelInstance.associate(sequelize.models)
+  )
+  
 module.exports = sequelize
