@@ -5,6 +5,7 @@ const { ValidationError } = require('../../errors')
 
 const productDomain = new ProductDomain()
 const stockLocationDomain = new StockLocationDomain()
+
 class Stock {
   
   async add(stockData) {
