@@ -27,6 +27,11 @@ module.exports = (sequelize) => {
     models.order.belongsTo(models.stockLocation, {
       constraints: false,
     })
+    
+    models.order.belongsToMany(models.product,  {
+      constraints: false,
+      through: models.orderProduct 
+    })
 
   }
 
