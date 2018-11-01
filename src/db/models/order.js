@@ -24,13 +24,9 @@ module.exports = (sequelize) => {
 
   Order.associate = (models) => {
 
-    models.order.belongsTo(models.stockLocation, {
-      constraints: false,
-    })
+    models.order.belongsTo(models.stockLocation)
     
-    models.order.hasMany(models.orderProduct, {
-      constraints: false,
-    })
+    models.order.hasMany(models.orderProduct)
   }
 
   return Order

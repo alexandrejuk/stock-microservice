@@ -7,13 +7,9 @@ module.exports = (sequelize) => {
 
   Stock.associate = (models) => {
 
-    models.stock.belongsTo(models.product, {
-      constraints: false,
-    })
+    models.stock.belongsTo(models.product)
 
-    models.stock.belongsTo(models.stockLocation, {
-      constraints: false,
-    })
+    models.stock.belongsTo(models.stockLocation)
 
   }
 
