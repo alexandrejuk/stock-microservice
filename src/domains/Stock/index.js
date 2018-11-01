@@ -1,6 +1,7 @@
 const db = require('../../db')
 const StockModel = db.model('stock')
-const { ProductDomain, StockLocationDomain } = require('../')
+const ProductDomain = require('../Product')
+const StockLocationDomain = require('../StockLocation')
 const { ValidationError } = require('../../errors')
 
 const productDomain = new ProductDomain()
@@ -20,6 +21,16 @@ class Stock {
     throw new ValidationError()
   }
 
+  async getProductQuantity(productId, stockLocationId = null) {
+    const where = stockLocationId ? { productId, stockLocationId } : { productId }
+
+    const productQuantity = await StockModel.sum(
+      'quantity',{
+        where
+      })
+    
+    return productQuantity || 0
+  }
 }
 
 module.exports = Stock
