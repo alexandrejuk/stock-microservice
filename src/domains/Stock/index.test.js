@@ -11,7 +11,7 @@ const productMock = {
   brand: 'apple',
   sku: 'a1v456578',
   category: 'cell phone',
-  serialControl: true,
+  hasSerialNumber: true,
   priceBuy: 89000,
   priceSell: 123000
 }

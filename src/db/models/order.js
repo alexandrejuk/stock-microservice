@@ -28,11 +28,9 @@ module.exports = (sequelize) => {
       constraints: false,
     })
     
-    models.order.belongsToMany(models.product,  {
+    models.order.hasMany(models.orderProduct, {
       constraints: false,
-      through: models.orderProduct 
     })
-
   }
 
   return Order

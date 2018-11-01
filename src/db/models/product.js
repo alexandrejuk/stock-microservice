@@ -23,7 +23,7 @@ module.exports = (sequelize) => {
     sku: {
       type: Sequelize.STRING 
     },
-    serialControl: {
+    hasSerialNumber: {
       type: Sequelize.BOOLEAN 
     },
     priceBuy: {

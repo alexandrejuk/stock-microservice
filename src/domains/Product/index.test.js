@@ -7,7 +7,7 @@ const productMock = {
   brand: 'apple',
   sku: 'a1v456578',
   category: 'cell phone',
-  serialControl: true,
+  hasSerialNumber: true,
   priceBuy: 89000,
   priceSell: 123000
 }
@@ -28,7 +28,7 @@ test('Should add a product', async t => {
   t.is(product.brand.toUpperCase(), createdProduct.brand)
   t.is(product.sku, createdProduct.sku)
   t.is(product.category.toUpperCase(), createdProduct.category)
-  t.is(product.serialControl, createdProduct.serialControl)
+  t.is(product.hasSerialNumber, createdProduct.hasSerialNumber)
   t.is(product.priceBuy, createdProduct.priceBuy)
   t.is(product.priceSell, createdProduct.priceSell)
 })
@@ -44,7 +44,7 @@ test('Should get a product by id', async t => {
   t.is(createdProduct.brand, result.brand)
   t.is(createdProduct.sku, result.sku)
   t.is(createdProduct.category, result.category)
-  t.is(product.serialControl, result.serialControl)
+  t.is(product.hasSerialNumber, result.hasSerialNumber)
   t.is(createdProduct.priceBuy, result.priceBuy)
   t.is(createdProduct.priceSell, result.priceSell)
 })
