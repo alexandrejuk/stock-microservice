@@ -1,13 +1,16 @@
 const db = require('../../db')
 const { FieldValidationError } = require('../../errors')
+const  StockDomain = require('../Stock')
 
+const stockDomain = new StockDomain()
 const ProductModel = db.model('product')
 const OrderModel = db.model('order')
 const OrderProductModel = db.model('orderProduct')
+
 class Order {
 
   async add(orderData, { transaction } = {}) {
-    const { orderProducts = [] } = orderData
+    const { orderProducts = [], stockLocationId } = orderData
     
     if (orderProducts.length < 1){
       const fields = [
@@ -28,7 +31,7 @@ class Order {
     )
 
     for (const orderProduct of orderProducts) {
-      await this.addOrderProduct(orderProduct, order.id, { transaction })
+      await this.addOrderProduct(orderProduct, order.id, stockLocationId, { transaction })
     }
 
     return await order.reload({
@@ -36,15 +39,17 @@ class Order {
     })
   }
 
-  async addOrderProduct(
-    orderProductData,
-    orderId,
-    {
-      transaction
-    } = {}
-  ) {
+  async addOrderProduct(orderProductData, orderId, stockLocationId, { transaction } = {}) {
     const product = await ProductModel.findById(orderProductData.productId)
     const unregisteredQuantity = product.hasSerialNumber ? orderProductData.quantity : 0
+
+    if(!product.hasSerialNumber){
+      await stockDomain.add({
+        productId: orderProductData.productId,
+        stockLocationId,
+        quantity: orderProductData.quantity
+      })
+    }
 
     const orderProduct = {
       unregisteredQuantity,
@@ -57,7 +62,8 @@ class Order {
   }
 
   async decreaseOrderProductUnregisteredQuantity(orderProductId, quantity, { transaction } = {}){
-    const orderProduct = await OrderProductModel.findById(orderProductId)
+    const orderProduct = await OrderProductModel
+      .findById(orderProductId)
 
     orderProduct.unregisteredQuantity -= quantity
     if (orderProduct.unregisteredQuantity < 0){
@@ -67,6 +73,14 @@ class Order {
       }]
       throw new FieldValidationError(fields)
     }
+
+    const order = await OrderModel.findById(orderProduct.orderId)
+
+    await stockDomain.add({
+      productId: orderProduct.productId,
+      stockLocationId: order.stockLocationId,
+      quantity: orderProduct.quantity
+    })
 
     return await orderProduct.save({ transaction })
   }

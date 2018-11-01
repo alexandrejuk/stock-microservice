@@ -3,9 +3,11 @@ const Order = require('./')
 const mock = require('../../helpers/mocks')
 const databaseHelper = require('../../helpers/database')
 const ProductDomain = require('../Product')
+const StockDomain = require('../Stock')
 const StockLocationDomain = require('../StockLocation')
 const { FieldValidationError } = require('../../errors')
 
+const stockDomain = new StockDomain()
 const stockLocationDomain = new StockLocationDomain()
 const productDomain = new ProductDomain()
 
@@ -18,7 +20,6 @@ test.beforeEach(async t => {
   t.context.stockLocationId = stockLocation.id 
   t.context.productId = product.id
 })
-
 
 test('should be a instance of order', t => {
   const orderDomain = new Order()
@@ -52,7 +53,7 @@ test('should add a new order and its orderProducts', async t => {
   })
 
   const createdOrder = await orderDomain.add(orderData)
-
+  
   t.is(orderData.description.toUpperCase(), createdOrder.description)
   t.is(orderData.reason.toUpperCase(), createdOrder.reason)
   t.is(orderData.status.toUpperCase(), createdOrder.status)
@@ -91,7 +92,6 @@ test('should set unregisteredQuantity to quantity when product has serial number
   t.is(createdOrder.orderProducts[0].unregisteredQuantity, orderData.orderProducts[0].quantity)
 })
 
-
 test('should not decrease unregistered quantity if the unregistered quantity is lower than zero', async t => {
   const orderDomain = new Order()
   const productWithSerialNumber = await productDomain.add(
@@ -118,7 +118,6 @@ test('should not decrease unregistered quantity if the unregistered quantity is 
   t.is(error.fields[0].message, `Quantity of the orderProduct id ${orderProductId} cannot be lower than 0`)
 })
 
-
 test('should decrease unregistered quantity according to the quantity passed', async t => {
   const orderDomain = new Order()
   const productWithSerialNumber = await productDomain.add(
@@ -141,4 +140,26 @@ test('should decrease unregistered quantity according to the quantity passed', a
   const orderProduct = await orderDomain.decreaseOrderProductUnregisteredQuantity(orderProductId, 100)
   
   t.is(orderProduct.unregisteredQuantity, 100)
+})
+
+test('should insert stock quantity of a give order product if its product does not have serial number', async t => {
+  const orderDomain = new Order()
+  const orderData = mock.orderData({
+    stockLocationId: t.context.stockLocationId,
+    orderProducts: [
+      {
+        productId: t.context.productId,
+        quantity: 10
+      }
+    ]
+  })
+
+  const createdOrder = await orderDomain.add(orderData)
+  const productQuantity = await stockDomain
+    .getProductQuantity(
+      t.context.productId,
+      t.context.stockLocationId
+    )
+
+  t.is(orderData.orderProducts[0].quantity, productQuantity)
 })
