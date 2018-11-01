@@ -41,7 +41,7 @@ class Order {
     orderId,
     {
       transaction
-    }
+    } = {}
   ) {
     const product = await ProductModel.findById(orderProductData.productId)
     const unregisteredQuantity = product.hasSerialNumber ? orderProductData.quantity : 0
@@ -53,7 +53,22 @@ class Order {
       productId: orderProductData.productId,
     }
 
-    await OrderProductModel.create(orderProduct)
+    await OrderProductModel.create(orderProduct, { transaction })
+  }
+
+  async decreaseOrderProductUnregisteredQuantity(orderProductId, quantity, { transaction } = {}){
+    const orderProduct = await OrderProductModel.findById(orderProductId)
+
+    orderProduct.unregisteredQuantity -= quantity
+    if (orderProduct.unregisteredQuantity < 0){
+      const fields =  [{
+        name: 'unregisteredQuantity',
+        message: `Quantity of the orderProduct id ${orderProductId} cannot be lower than 0`
+      }]
+      throw new FieldValidationError(fields)
+    }
+
+    return await orderProduct.save({ transaction })
   }
 }
 

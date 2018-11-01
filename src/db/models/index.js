@@ -3,6 +3,7 @@ const StockLocation = require('./stockLocation')
 const Product = require('./product')
 const Order = require('./order')
 const orderProduct = require('./orderProduct')
+const individualProduct = require('./individualProduct')
 
 module.exports = [
   Stock,
@@ -10,5 +11,5 @@ module.exports = [
   Product,
   Order,
   orderProduct,
-  
+  individualProduct,
 ]

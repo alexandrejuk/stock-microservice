@@ -90,3 +90,55 @@ test('should set unregisteredQuantity to quantity when product has serial number
   t.is(orderData.orderProducts[0].quantity, createdOrder.orderProducts[0].quantity)
   t.is(createdOrder.orderProducts[0].unregisteredQuantity, orderData.orderProducts[0].quantity)
 })
+
+
+test('should not decrease unregistered quantity if the unregistered quantity is lower than zero', async t => {
+  const orderDomain = new Order()
+  const productWithSerialNumber = await productDomain.add(
+    mock.product({ hasSerialNumber: true })
+  )
+
+  const orderData = mock.orderData({
+    stockLocationId: t.context.stockLocationId,
+    orderProducts: [
+      {
+        productId: productWithSerialNumber.id,
+        quantity: 200
+      }
+    ]
+  })
+
+  const createdOrder = await orderDomain.add(orderData)
+  const orderProductId = createdOrder.orderProducts[0].id
+
+  const error = await t.throws(orderDomain.decreaseOrderProductUnregisteredQuantity(orderProductId, 201))
+  
+  t.true(error instanceof FieldValidationError)
+  t.is(error.fields[0].name, 'unregisteredQuantity')
+  t.is(error.fields[0].message, `Quantity of the orderProduct id ${orderProductId} cannot be lower than 0`)
+})
+
+
+test('should decrease unregistered quantity according to the quantity passed', async t => {
+  const orderDomain = new Order()
+  const productWithSerialNumber = await productDomain.add(
+    mock.product({ hasSerialNumber: true })
+  )
+
+  const orderData = mock.orderData({
+    stockLocationId: t.context.stockLocationId,
+    orderProducts: [
+      {
+        productId: productWithSerialNumber.id,
+        quantity: 200
+      }
+    ]
+  })
+
+  const createdOrder = await orderDomain.add(orderData)
+  const orderProductId = createdOrder.orderProducts[0].id
+
+  const orderProduct = await orderDomain.decreaseOrderProductUnregisteredQuantity(orderProductId, 100)
+  
+  t.is(orderProduct.unregisteredQuantity, 100)
+})
