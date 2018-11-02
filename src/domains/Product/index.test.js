@@ -1,50 +1,38 @@
-const test = require('ava')
+const expect = require('expect');
 const Product = require('./')
-const databaseHelper = require('../../helpers/database')
+const mocks = require('../../helpers/mocks')
 
-const productMock = {
-  name: 'iphone 7s',
-  brand: 'apple',
-  sku: 'a1v456578',
-  category: 'cell phone',
-  hasSerialNumber: true,
-  priceBuy: 89000,
-  priceSell: 123000
-}
-
-test.before(databaseHelper.isDatabaseConnected)
-
-test('Should be a product instance', t => {
+test('Should be a product instance', () => {
   const productDomain = new Product()
-  t.true(productDomain instanceof Product)
+  expect(productDomain instanceof Product).toBe(true)
 })
 
-test('Should add a product', async t => {
+test('Should add a product', async () => {
   const productDomain = new Product()
-  const product = productMock
+  const product = mocks.product()
   const createdProduct = await productDomain.add(product)
   
-  t.is(product.name.toUpperCase(), createdProduct.name)
-  t.is(product.brand.toUpperCase(), createdProduct.brand)
-  t.is(product.sku, createdProduct.sku)
-  t.is(product.category.toUpperCase(), createdProduct.category)
-  t.is(product.hasSerialNumber, createdProduct.hasSerialNumber)
-  t.is(product.priceBuy, createdProduct.priceBuy)
-  t.is(product.priceSell, createdProduct.priceSell)
+  expect(product.name.toUpperCase()).toBe(createdProduct.name)
+  expect(product.brand.toUpperCase()).toBe(createdProduct.brand)
+  expect(product.sku).toBe(createdProduct.sku)
+  expect(product.category.toUpperCase()).toBe(createdProduct.category)
+  expect(product.hasSerialNumber).toBe(createdProduct.hasSerialNumber)
+  expect(product.priceBuy).toBe(createdProduct.priceBuy)
+  expect(product.priceSell).toBe(createdProduct.priceSell)
 })
 
-test('Should get a product by id', async t => {
+test('Should get a product by id', async () => {
   const productDomain = new Product()
-  const product = productMock
-  const createdProduct = await productDomain.add(product)
+  const productMock = mocks.product()
+  const createdProduct = await productDomain.add(productMock)
   const result = await productDomain.getById(createdProduct.id)
 
-  t.is(createdProduct.id, result.id)
-  t.is(createdProduct.name, result.name)
-  t.is(createdProduct.brand, result.brand)
-  t.is(createdProduct.sku, result.sku)
-  t.is(createdProduct.category, result.category)
-  t.is(product.hasSerialNumber, result.hasSerialNumber)
-  t.is(createdProduct.priceBuy, result.priceBuy)
-  t.is(createdProduct.priceSell, result.priceSell)
+  expect(createdProduct.id).toBe(result.id)
+  expect(createdProduct.name).toBe(result.name)
+  expect(createdProduct.brand).toBe(result.brand)
+  expect(createdProduct.sku).toBe(result.sku)
+  expect(createdProduct.category).toBe(result.category)
+  expect(productMock.hasSerialNumber).toBe(result.hasSerialNumber)
+  expect(createdProduct.priceBuy).toBe(result.priceBuy)
+  expect(createdProduct.priceSell).toBe(result.priceSell)
 })
