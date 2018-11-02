@@ -15,7 +15,7 @@ const productMock = {
 const orderDataMock = { 
   description: generateData(),
   reason: generateData(),
-  status: 'registered',
+  status: 'REGISTERED',
   orderProducts: []
 }
 
