@@ -31,7 +31,7 @@ class Order {
     )
 
     for (const orderProduct of orderProducts) {
-      await this.addOrderProduct(orderProduct, order, stockLocationId, { transaction })
+      await this.addOrderProduct(orderProduct, order, { transaction })
     }
 
     return await order.reload({
@@ -77,10 +77,10 @@ class Order {
 
     const order = await OrderModel.findById(orderProduct.orderId)
 
-    await stockDomain.add({
+    await order.createStock({
+      quantity,
       productId: orderProduct.productId,
       stockLocationId: order.stockLocationId,
-      quantity: orderProduct.quantity
     })
 
     return await orderProduct.save({ transaction })
