@@ -1,55 +1,90 @@
-const test = require('ava')
+const expect = require('expect');
 const mock = require('../../helpers/mocks')
-const databaseHelper = require('../../helpers/database')
 const ProductDomain = require('../Product')
-const Order = require('../Order')
 const individualProductDomain = require('./')
-const StockLocationDomain = require('../StockLocation')
 const { FieldValidationError } = require('../../errors')
 const randomDataGenerator = require('../../helpers/randomDataGenerator')
 
-const stockLocationDomain = new StockLocationDomain()
 const productDomain = new ProductDomain()
-const orderDomain = new Order()
 
-test.before(databaseHelper.isDatabaseConnected)
-test.beforeEach(async t => {
-  const stockLocation = await stockLocationDomain.add(mock.stockLocation())
-  const product = await productDomain.add(mock.product())
+describe('addMahy  with correct individual product data', async () => {
+  let createdIndividualProducts = null
+  let individualProductData = null
 
-  t.context = {}
-  t.context.stockLocationId = stockLocation.id 
-  t.context.productId = product.id
-})
+  beforeAll(async () => {
+    const productWithSerialNumber = await productDomain.add(
+      mock.product({ hasSerialNumber: true })
+    )
 
-test('should register individual products to the given orderProduct', async t => {
-  const productWithSerialNumber = await productDomain.add(
-    mock.product({ hasSerialNumber: true })
-  )
+    individualProductData = {
+      productId: productWithSerialNumber.id,
+      originId: null,
+      originType: null,
+      serialNumbers: [
+        randomDataGenerator(),
+        randomDataGenerator(),
+        randomDataGenerator(),
+        randomDataGenerator(),
+        randomDataGenerator(),
+        randomDataGenerator(),
+      ]
+    }
 
-  const orderData = mock.orderData({
-    stockLocationId: t.context.stockLocationId,
-    orderProducts: [
-      {
-        productId: productWithSerialNumber.id,
-        quantity: 200
-      }
-    ]
+    createdIndividualProducts = await individualProductDomain.addMany(individualProductData)
   })
 
-  const createdOrder = await orderDomain.add(orderData)
-  const orderProductId = createdOrder.orderProducts[0].id
 
-  const individualProductData = {
-    productId: productWithSerialNumber.id,
-    originId: orderProductId,
-    originType: 'orderProduct',
-    serialNumbers: [
-      randomDataGenerator(),
-    ]
-  }
+  it('should add all serialNumbers as individual products', () => {
+    expect(createdIndividualProducts.length).toBe(individualProductData.serialNumbers.length)
+  })
 
-  const createdIndividualProducList = await individualProductDomain.addMany(individualProductData)
-  
-  t.is(createdIndividualProducList[0].serialNumber, individualProductData.serialNumbers[0])
+  it('all serial numbers add should have the belong to the given productId', () => {
+    for(const createdIndividualProduct of createdIndividualProducts){
+      expect(createdIndividualProduct.productId).toBe(individualProductData.productId)
+    }
+  })
+
+  it('default originId and originType should be null if not specified', () => {
+    for(const createdIndividualProduct of createdIndividualProducts){
+      expect(createdIndividualProduct.originId).toBeNull()
+      expect(createdIndividualProduct.originType).toBeNull()
+    }
+  })
+})
+
+describe('add many with incorrect data', () => {
+  it('should throw an error if the number of serialNumbers is less than 0', async () => {
+    const product = await productDomain.add(
+      mock.product({ hasSerialNumber: true })
+    )
+
+    const individualProductData = {
+      productId: product.id,
+      originId: null,
+      originType: null,
+      serialNumbers: [
+      ]
+    }
+
+    await expect(individualProductDomain.addMany(individualProductData))
+      .rejects.toThrowError(FieldValidationError)
+  })
+
+  it('should throw an error if the product does not allow serial number', async () => {
+    const product = await productDomain.add(
+      mock.product({ hasSerialNumber: false })
+    )
+
+    const individualProductData = {
+      productId: product.id,
+      originId: null,
+      originType: null,
+      serialNumbers: [
+        randomDataGenerator(),
+      ]
+    }
+    
+    await expect(individualProductDomain.addMany(individualProductData))
+      .rejects.toThrowError(new FieldValidationError())
+  })
 })
