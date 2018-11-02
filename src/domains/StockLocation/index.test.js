@@ -1,36 +1,36 @@
-const test = require('ava')
+const expect = require('expect');
 const StockLocation = require('./')
 const databaseHelper = require('../../helpers/database')
 
 const stockLocationDomain = new StockLocation()
 const stockLocationMock = { name: 'amazon' }
 
-test.before(databaseHelper.isDatabaseConnected)
 
-test('Should be a stockLocation instance', t => {
+
+test('Should be a stockLocation instance', () => {
   const stockLocationDomain = new StockLocation()
-  t.true(stockLocationDomain instanceof StockLocation)
+  expect(stockLocationDomain instanceof StockLocation).toBe(true)
 })
 
-test('Should add a new stockLocaton', async t => {
+test('Should add a new stockLocaton', async () => {
   const stockLocationData = stockLocationMock
   const createdStockLocation = await stockLocationDomain.add(stockLocationData)
-  t.is(stockLocationData.name.toUpperCase(),  createdStockLocation.name)
+  expect(stockLocationData.name.toUpperCase()).toBe(createdStockLocation.name)
 })
 
-test('Should find a stock location by its id', async t => {
+test('Should find a stock location by its id', async () => {
   const stockLocationData = stockLocationMock
   const createdStockLocation = await stockLocationDomain.add(stockLocationData)
 
   const foundStockLocation = await stockLocationDomain.getById(createdStockLocation.id)
 
-  t.is(createdStockLocation.name,  foundStockLocation.name)
-  t.is(createdStockLocation.id,  foundStockLocation.id)
+  expect(createdStockLocation.name).toBe(foundStockLocation.name)
+  expect(createdStockLocation.id).toBe(foundStockLocation.id)
 })
 
-test('getById should return null if id does not exists ', async t => {
+test('getById should return null if id does not exists ', async () => {
   const randomId = 32323432
   const foundStockLocation = await stockLocationDomain.getById(randomId)
 
-  t.is(foundStockLocation, null)
+  expect(foundStockLocation).toBe(null)
 })
