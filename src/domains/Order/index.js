@@ -31,7 +31,7 @@ class Order {
     )
 
     for (const orderProduct of orderProducts) {
-      await this.addOrderProduct(orderProduct, order.id, stockLocationId, { transaction })
+      await this.addOrderProduct(orderProduct, order, stockLocationId, { transaction })
     }
 
     return await order.reload({
@@ -39,21 +39,22 @@ class Order {
     })
   }
 
-  async addOrderProduct(orderProductData, orderId, stockLocationId, { transaction } = {}) {
+  async addOrderProduct(orderProductData, order, { transaction } = {}) {
     const product = await ProductModel.findById(orderProductData.productId)
     const unregisteredQuantity = product.hasSerialNumber ? orderProductData.quantity : 0
 
     if(!product.hasSerialNumber){
-      await stockDomain.add({
+      await order.createStock({
+        stockLocationId: order.stockLocationId,
+        quantity: orderProductData.quantity,
+        description: 'order resgitration',
         productId: orderProductData.productId,
-        stockLocationId,
-        quantity: orderProductData.quantity
       })
     }
 
     const orderProduct = {
       unregisteredQuantity,
-      orderId,
+      orderId: order.id,
       quantity: orderProductData.quantity,
       productId: orderProductData.productId,
     }

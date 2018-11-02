@@ -15,18 +15,21 @@ module.exports = (sequelize) => {
       }  
     },
     status: {
-      type: Sequelize.STRING,
-      set(val) {
-        this.setDataValue('status', val.toUpperCase());
-      }  
+      type: Sequelize.ENUM(['CANCELLED', 'REGISTERED'])
     }
   })
 
   Order.associate = (models) => {
 
     models.order.belongsTo(models.stockLocation)
-    
     models.order.hasMany(models.orderProduct)
+    models.order.hasMany(models.stock, {
+      constraints: false,
+      foreignKey: 'originId',
+      scope: {
+        originType: 'order',
+      }
+    })
   }
 
   return Order

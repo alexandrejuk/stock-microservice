@@ -31,7 +31,7 @@ test('should throw an expection if orderProducts length less than 1', async (t) 
   const orderData = { 
     description: 'teste',
     reason: '',
-    status: 'finalizado',
+    status: 'REGISTERED',
     stockLocationId: t.context.stockLocationId,
   }
 
