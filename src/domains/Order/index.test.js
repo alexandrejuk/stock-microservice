@@ -5,7 +5,10 @@ const ProductDomain = require('../Product')
 const StockDomain = require('../Stock')
 const StockLocationDomain = require('../StockLocation')
 const { FieldValidationError } = require('../../errors')
+const database = require('../../db')
 
+const OrderProductModel = database.model('orderProduct')
+const OrderModel = database.model('order')
 const stockDomain = new StockDomain()
 const orderDomain = new Order()
 const stockLocationDomain = new StockLocationDomain()
@@ -126,7 +129,9 @@ describe('decreaseOrderProductUnregisteredQuantity', () => {
   
   beforeEach(async () => {
     const stockLocation = await stockLocationDomain.add(mock.stockLocation())
-    const product = await productDomain.add({ hasSerialNumber: true })
+    const product = await productDomain.add(
+      mock.product({ hasSerialNumber: true })
+    )
 
     stockLocationId = stockLocation.id 
     productId = product.id
@@ -169,5 +174,74 @@ describe('decreaseOrderProductUnregisteredQuantity', () => {
       .getProductQuantity(orderProduct.productId, createdOrder.stockLocationId)
     
     expect(quantityInStock).toBe(100)
+  })
+})
+
+describe('cancell', () => {
+  let createdOrder = null
+  let stockLocationId = null
+  let orderData = null
+  let products = []
+  
+  beforeEach(async () => {
+    const stockLocation = await stockLocationDomain.add(mock.stockLocation())
+    products = [
+      await productDomain.add(
+        mock.product({ hasSerialNumber: true }),
+      ),
+      await productDomain.add(
+        mock.product(),
+      ),
+      await productDomain.add(
+        mock.product({ hasSerialNumber: true }),
+      ),
+      await productDomain.add(
+        mock.product(),
+      ),
+    ]
+
+
+    stockLocationId = stockLocation.id 
+
+    orderData = mock.orderData({
+      stockLocationId: stockLocationId,
+      orderProducts: products.map(product => ({
+        productId: product.id,
+        quantity: 100,
+      }))
+    })
+
+    createdOrder = await orderDomain.add(orderData)
+  })
+
+  test('should return cancelled order if everything is okay', async () => {
+    const cancelledOrder = await orderDomain.cancell(createdOrder.id)
+
+    expect(cancelledOrder.id).toBe(createdOrder.id)
+    expect(cancelledOrder.status).toBe('CANCELLED')
+  })
+
+  test('should thorw error if order has a status diffent of REGISTERED', async () => {
+    await orderDomain.cancell(createdOrder.id)
+
+    await expect(orderDomain.cancell(createdOrder.id))
+      .rejects
+      .toThrowError(FieldValidationError)
+  })
+
+  test('should thorw error if order is not found', async () => {
+    await expect(orderDomain.cancell('323232'))
+      .rejects
+      .toThrowError(FieldValidationError)
+  })
+
+  test('each order product should have its quantity equals 0 after the cancellation', async () => {
+    await orderDomain.cancell(createdOrder.id)
+    
+    for (const product of products) {
+      const quantity = await stockDomain.getProductQuantity(product.id, stockLocationId)
+
+      expect(quantity).toBe(0)
+    }
   })
 })

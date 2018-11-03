@@ -1,8 +1,8 @@
 const generateData = require('../randomDataGenerator')
 
-const dataCreator = mock => custom => ({...mock, ...custom})
+const dataCreator = mockCreator => custom => ({...mockCreator(), ...custom})
 
-const productMock = {
+const productMock = () => ({
   name: generateData(),
   brand: generateData(),
   sku: generateData(),
@@ -10,16 +10,16 @@ const productMock = {
   hasSerialNumber: false,
   priceBuy: 1000,
   priceSell: 1200
-}
+})
 
-const orderDataMock = { 
+const orderDataMock = () => ({ 
   description: generateData(),
   reason: generateData(),
   status: 'REGISTERED',
   orderProducts: []
-}
+})
 
-const stockLocationMock = { name: generateData() }
+const stockLocationMock = () => ({ name: generateData() })
 
 module.exports = {
   product: dataCreator(productMock),

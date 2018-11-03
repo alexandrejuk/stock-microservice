@@ -6,31 +6,39 @@ module.exports = (sequelize) => {
       type: Sequelize.STRING,
       set(val) {
         this.setDataValue('name', val.toUpperCase());
-      }  
+      },
+      // allowNull: false,
     },
     brand: {
       type: Sequelize.STRING,
       set(val) {
         this.setDataValue('brand', val.toUpperCase());
-      }  
+      },
+      // allowNull: false,
     },
     category: {
       type: Sequelize.STRING,
       set(val) {
         this.setDataValue('category', val.toUpperCase());
-      }  
+      },
+      // allowNull: false,
     },
     sku: {
-      type: Sequelize.STRING 
+      type: Sequelize.STRING,
+      unique: true,
+      allowNull: false,
     },
     hasSerialNumber: {
-      type: Sequelize.BOOLEAN 
+      type: Sequelize.BOOLEAN,
+      default: false,
     },
     priceBuy: {
-      type: Sequelize.INTEGER 
+      type: Sequelize.INTEGER,
+      default: 0,
     },
     priceSell: {
-      type: Sequelize.INTEGER 
+      type: Sequelize.INTEGER,
+      default: 0,
     },
   })
   return Product

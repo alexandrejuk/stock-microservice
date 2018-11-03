@@ -5,6 +5,7 @@ const  StockDomain = require('../Stock')
 const stockDomain = new StockDomain()
 const ProductModel = db.model('product')
 const OrderModel = db.model('order')
+const StockModel = db.model('stock')
 const OrderProductModel = db.model('orderProduct')
 
 class Order {
@@ -84,6 +85,47 @@ class Order {
     })
 
     return await orderProduct.save({ transaction })
+  }
+
+  async cancell (orderId) {
+    const order = await OrderModel.findByPk(orderId, { include: [StockModel]})
+
+    if (!order) {
+      const fields = [
+        {
+          name: 'order',
+          message: 'order not found!'
+        }
+      ]
+
+      throw new FieldValidationError(fields)
+    }
+
+    if (order.status !== 'REGISTERED') {
+      const fields = [
+        {
+          name: 'status',
+          message: 'this order is already cancelled!'
+        }
+      ]
+
+      throw new FieldValidationError(fields)
+    }
+
+    for (const stock of order.stocks) {
+      await order.createStock({
+        productId: stock.productId,
+        stockLocationId: stock.stockLocationId,
+        description: 'order cancellation',
+        quantity: stock.quantity * -1,
+      })
+    }
+    
+
+    order.status = 'CANCELLED'
+    await order.save()
+
+    return order
   }
 }
 
