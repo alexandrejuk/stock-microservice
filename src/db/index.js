@@ -11,6 +11,9 @@ const sequelize = new Sequelize('postgres', 'postgres', 'postgres', {
     acquire: 30000,
     idle: 10000
   },
+  define: {
+    freezeTableName: true
+  }
 })
 
 const modelInstances = models.map(model => model(sequelize))
