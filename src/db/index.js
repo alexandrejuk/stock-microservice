@@ -1,4 +1,5 @@
-const Sequelize = require('sequelize');
+const Sequelize = require('sequelize')
+const models = require('./models')
 const sequelize = new Sequelize('postgres', 'postgres', 'postgres', {
   host: 'localhost',
   dialect: 'postgres',
@@ -10,36 +11,17 @@ const sequelize = new Sequelize('postgres', 'postgres', 'postgres', {
     acquire: 30000,
     idle: 10000
   },
-});
-
-const Product = sequelize.define('product', {
-  name: {
-    type: Sequelize.STRING,
-    set(val) {
-      this.setDataValue('name', val.toUpperCase());
-    }  
+  define: {
+    freezeTableName: true
   }
 })
 
-const StockLocation = sequelize.define('stockLocation', {
-  name: {
-    type: Sequelize.STRING,
-    set(val) {
-      this.setDataValue('name', val.toUpperCase());
-    }  
-  }
-})
-
-const Stock = sequelize.define('stock', {
-  quantity: Sequelize.INTEGER,
-})
-
-Stock.belongsTo(Product, {
-  constraints: false,
-})
-
-Stock.belongsTo(StockLocation, {
-  constraints: false,
-})
-
+const modelInstances = models.map(model => model(sequelize))
+modelInstances
+  .forEach(
+    modelInstance => 
+      modelInstance.associate && 
+      modelInstance.associate(sequelize.models)
+  )
+  
 module.exports = sequelize

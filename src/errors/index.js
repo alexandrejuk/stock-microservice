@@ -15,7 +15,16 @@ class ValidationError extends Base {
   }
 }
 
+class FieldValidationError extends ValidationError {
+  constructor(fields){
+    super()
+    this.fields = fields
+    Error.captureStackTrace(this, this.constructor)
+  }
+}
+
 module.exports = {
   ValidationError,
   Base,
+  FieldValidationError,
 }

@@ -7,7 +7,11 @@ const forceCreateTables = () =>
   isDatabaseConnected()
   .then(() => db.sync({ force: true }))
 
+const dropAndDisconnectDatabase = () => db
+  .close()
+
 module.exports = {
   isDatabaseConnected,
-  forceCreateTables
+  forceCreateTables,
+  dropAndDisconnectDatabase,
 }
