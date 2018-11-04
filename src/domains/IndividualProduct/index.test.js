@@ -44,6 +44,12 @@ describe('addMahy  with correct individual product data', async () => {
     }
   })
 
+  it('all individual products should have default status equals to availabe', () => {
+    for(const createdIndividualProduct of createdIndividualProducts){
+      expect(createdIndividualProduct.status).toBe('available')
+    }
+  })
+
   it('default originId and originType should be null if not specified', () => {
     for(const createdIndividualProduct of createdIndividualProducts){
       expect(createdIndividualProduct.originId).toBeNull()

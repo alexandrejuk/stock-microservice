@@ -36,7 +36,8 @@ const addMany = async (individualProductData, { transaction } = {}) => {
     originId,
     type,
     productId,
-    originType
+    originType,
+    status: 'available'
   }))
 
   if (originType === 'orderProduct') {

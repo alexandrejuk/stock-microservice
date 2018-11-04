@@ -15,6 +15,10 @@ module.exports = (sequelize) => {
     },
     originType: {
       type: Sequelize.STRING,
+    },
+    status: {
+      type: Sequelize.ENUM(['available', 'reserved']),
+      default: 'available',
     }
   })
 
