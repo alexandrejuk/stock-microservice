@@ -7,7 +7,7 @@ module.exports = (sequelize) => {
       unique: 'product_serial',
     },
     productId: {
-      type: Sequelize.STRING,
+      type: Sequelize.INTEGER,
       unique: 'product_serial',
     },
     originId: {
