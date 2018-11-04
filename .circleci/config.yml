@@ -1,0 +1,29 @@
+version: 2
+jobs:
+  build:
+    working_directory: ~/server
+    docker: 
+      - image: circleci/node:8
+      - image: postgres:9.6.5-alpine
+        environment:
+            POSTGRES_USER: postgres
+            POSTGRES_PASSWORD: postgres
+    environment:
+      NODE_ENV: test
+    steps:
+      - checkout
+      - run:
+          name: update-npm 
+          command: 'sudo npm install -g npm@latest'
+      - restore_cache:
+          key: dependency-cache-{{ checksum "package.json" }}
+      - run:
+          name: install-npm-wee
+          command: yarn install
+      - save_cache:
+          key: dependency-cache-{{ checksum "package.json" }}
+          paths:
+            - ./node_modules
+      - run:
+          name: test
+          command: yarn test
