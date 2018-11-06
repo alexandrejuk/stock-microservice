@@ -13,7 +13,7 @@ const stockLocationDomain = new StockLocationDomain()
 const productDomain = new ProductDomain()
 const individualProductDomain = new IndividualProductDomain()
 
-describe('add', () => {
+describe.skip('add', () => {
   beforeEach(async () => {
     const stockLocation = await stockLocationDomain.add(mocks.stockLocation())
     const product = await productDomain.add(mocks.product({
@@ -34,6 +34,8 @@ describe('add', () => {
   })
 
   describe('add with correct data', () => {
+    test('dasdsa', () => {
 
+    })
   })
 })
