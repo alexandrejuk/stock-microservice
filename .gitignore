@@ -4,6 +4,8 @@ logs
 
 credentials
 
+coverage
+
 # Runtime data
 pids
 *.pid
