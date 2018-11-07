@@ -4,6 +4,7 @@ const cors = require('cors')
 const logger = require('morgan')
 const errorFormatter = require('./helpers/errorFormatter')
 const productRoute = require('./routes/product')
+const orderRoute = require('./routes/order')
 
 const app = Express()
 
@@ -14,6 +15,7 @@ app.use(logger('dev'))
 
 /* routes */
 app.use('/api', productRoute)
+app.use('/api', orderRoute)
 
 /* error handlers */
 app.use((err, req, res, next) => { //eslint-disable-line
