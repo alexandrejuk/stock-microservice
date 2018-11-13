@@ -127,6 +127,18 @@ class Order {
 
     return order
   }
+
+  async getById(id) {
+    return await OrderModel.findByPk(id, {
+      include: [
+        { model: OrderProductModel, required: true}
+     ]
+    })
+  }
+
+  async getAll() {
+    return await OrderModel.findAll({})
+  }
 }
 
 module.exports = Order

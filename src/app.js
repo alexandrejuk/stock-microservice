@@ -29,6 +29,6 @@ app.use((err, req, res, next) => { //eslint-disable-line
   res.json(formattedError)
 })
 
-app.listen(3000, () => console.log('Running...'))
+app.listen(3003, () => console.log('Running...'))
 
 module.exports = app

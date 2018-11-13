@@ -10,6 +10,27 @@ const add = async (req, res, next) => {
   }
 }
 
+const get = async (req, res, next) => {
+  try {
+    const orders = await orderDomain.getAll()
+    res.status(200).json(orders)
+  } catch (error) {
+    next(error)
+  }
+}
+
+const getById = async (req, res, next) => {
+  try {
+    const { id } = req.params
+    const order = await orderDomain.getById(id)
+    res.status(200).json(order)
+  } catch (error) {
+    next(error)
+  }
+}
+
 module.exports = {
   add,
+  get,
+  getById,
 }
