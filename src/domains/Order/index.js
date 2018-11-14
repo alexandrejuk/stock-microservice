@@ -7,6 +7,7 @@ const ProductModel = db.model('product')
 const OrderModel = db.model('order')
 const StockModel = db.model('stock')
 const OrderProductModel = db.model('orderProduct')
+const StockLocationModel = db.model('stockLocation')
 
 class Order {
 
@@ -131,7 +132,15 @@ class Order {
   async getById(id) {
     return await OrderModel.findByPk(id, {
       include: [
-        { model: OrderProductModel, required: true}
+        { model: StockLocationModel, required: true},
+        { 
+          model: OrderProductModel, 
+          include: [
+            {
+              model: ProductModel
+            }
+          ]
+        },
      ]
     })
   }
