@@ -12,6 +12,11 @@ class StockLocation {
     const stockLocation = await StockLocationModel.findByPk(id)
     return stockLocation
   }
+
+  async getAll() {
+    const stockLocations = await StockLocationModel.findAll({})
+    return stockLocations
+  }
 }
 
 module.exports = StockLocation
