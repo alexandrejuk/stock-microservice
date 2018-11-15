@@ -2,9 +2,9 @@ const R = require('ramda')
 const {
   UniqueConstraintError,
   Error: SequelizeError,
-  ValidationError
+  ValidationError: DatabaseValidationError,
 } = require('sequelize')
-const { Base } = require('../errors')
+const { Base, ValidationError } = require('../errors')
 
 const UniqueConstraintErrorFormatter = R.applySpec({
   field: R.propOr(null, 'path'),
@@ -14,8 +14,7 @@ const UniqueConstraintErrorFormatter = R.applySpec({
 
 const validationErrorFormatter = R.applySpec({
   field: R.pipe(
-    R.propOr([], 'field'),
-    R.join('.'),
+    R.propOr('', 'name'),
   ),
   message: R.propOr('required', 'message'),
   type: () => 'required',
@@ -32,6 +31,10 @@ const getError = (
     R.propOr([], 'errors'),
     R.map(formatter),
   ),
+  fields: R.pipe(
+    R.propOr([], 'fields'),
+    R.map(formatter),
+  ),
 })
 
 const baseErrorFormatter = R.applySpec({
@@ -46,7 +49,7 @@ const formatErrorResponse = (err) => {
     return getError(409, 'unique_constraint', UniqueConstraintErrorFormatter)(err)
   }
 
-  if (err instanceof ValidationError) {
+  if (err instanceof DatabaseValidationError) {
     return getError(409, 'validation_error', UniqueConstraintErrorFormatter)(err)
   }
 
@@ -54,7 +57,7 @@ const formatErrorResponse = (err) => {
     return getError(409, 'general_database', UniqueConstraintErrorFormatter)(err)
   }
 
-  if (err.message === 'validation error') {
+  if (err instanceof ValidationError) {
     return getError(422, 'validation_error', validationErrorFormatter)(err)
   }
 

@@ -7,6 +7,7 @@ const productRoute = require('./routes/product')
 const orderRoute = require('./routes/order')
 const stockRoute = require('./routes/stock')
 const stockLocationRoute = require('./routes/stockLocation')
+const reservationRoute = require('./routes/reservation')
 
 const app = Express()
 
@@ -20,6 +21,7 @@ app.use('/api', productRoute)
 app.use('/api', orderRoute)
 app.use('/api', stockRoute)
 app.use('/api', stockLocationRoute)
+app.use('/api', reservationRoute)
 
 /* error handlers */
 app.use((err, req, res, next) => { //eslint-disable-line
