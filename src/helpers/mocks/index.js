@@ -12,6 +12,16 @@ const productMock = () => ({
   priceSell: 1200
 })
 
+const customerMock = () => ({
+  name: generateData().toUpperCase(),
+  type: 'fisica',
+})
+
+const documentMock = () => ({
+  value: generateData(11, true),
+  type: 'cnpj',
+})
+
 const orderDataMock = () => ({ 
   description: generateData(),
   reason: generateData(),
@@ -24,5 +34,7 @@ const stockLocationMock = () => ({ name: generateData() })
 module.exports = {
   product: dataCreator(productMock),
   stockLocation: dataCreator(stockLocationMock),
-  orderData: dataCreator(orderDataMock)
+  orderData: dataCreator(orderDataMock),
+  customerData: dataCreator(customerMock),
+  documentData: dataCreator(documentMock)
 }
