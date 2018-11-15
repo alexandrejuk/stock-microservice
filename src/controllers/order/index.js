@@ -32,7 +32,9 @@ const getById = async (req, res, next) => {
 const updateById = async (req, res, next) => {
   try {
     const { id } = req.params
-    const order = await orderDomain.cancell(id)
+    await orderDomain.cancell(id)
+    const order = await orderDomain.getById(id)
+
     res.status(200).json(order)
   } catch (error) {
     next(error)
