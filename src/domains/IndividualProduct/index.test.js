@@ -1,6 +1,7 @@
 const expect = require('expect');
 const mock = require('../../helpers/mocks')
 const ProductDomain = require('../Product')
+const StockLocationDomain = require('../StockLocation')
 const IndividualProductDomain = require('./')
 const { FieldValidationError } = require('../../errors')
 const database = require('../../db')
@@ -8,6 +9,16 @@ const randomDataGenerator = require('../../helpers/randomDataGenerator')
 
 const productDomain = new ProductDomain()
 const individualProductDomain = new IndividualProductDomain()
+const stockLocationDomain = new StockLocationDomain()
+
+let stockLocationId = null
+beforeAll(async () => {
+  const createdStockLocation = await stockLocationDomain.add({
+    name: 'fake location'
+  })
+
+  stockLocationId = createdStockLocation.id
+})
 
 describe('addMahy  with correct individual product data', async () => {
   let createdIndividualProducts = null
@@ -22,6 +33,7 @@ describe('addMahy  with correct individual product data', async () => {
       productId: productWithSerialNumber.id,
       originId: null,
       originType: null,
+      stockLocationId,
       serialNumbers: [
         randomDataGenerator(),
         randomDataGenerator(),
@@ -46,9 +58,15 @@ describe('addMahy  with correct individual product data', async () => {
     }
   })
 
-  it('all individual products should have default status equals to availabe', () => {
+  it('all individual products should have default available equals to true', () => {
     for(const createdIndividualProduct of createdIndividualProducts){
-      expect(createdIndividualProduct.status).toBe('available')
+      expect(createdIndividualProduct.available).toBe(true)
+    }
+  })
+
+  it('all individual products should the specific stockLocationId', () => {
+    for(const createdIndividualProduct of createdIndividualProducts){
+      expect(createdIndividualProduct.stockLocationId).toBe(stockLocationId)
     }
   })
 
@@ -70,6 +88,7 @@ describe('add many with incorrect data', () => {
       productId: product.id,
       originId: null,
       originType: null,
+      stockLocationId,
       serialNumbers: [
       ]
     }
@@ -87,6 +106,7 @@ describe('add many with incorrect data', () => {
       productId: product.id,
       originId: null,
       originType: null,
+      stockLocationId,
       serialNumbers: [
         randomDataGenerator(),
       ]
@@ -99,7 +119,7 @@ describe('add many with incorrect data', () => {
 
 describe('getProductAvailableByProductId', () => {
   test('should throw if there is no available product with for a given product id', async () => {
-    await expect(individualProductDomain.getAvailableIndividualProductAndReserve(20020))
+    await expect(individualProductDomain.getAvailableIndividualProductAndReserve(20020, stockLocationId))
       .rejects.toThrowError(FieldValidationError)
   })
 
@@ -112,6 +132,7 @@ describe('getProductAvailableByProductId', () => {
       productId: product.id,
       originId: null,
       originType: null,
+      stockLocationId,
       serialNumbers: [
         randomDataGenerator(),
         randomDataGenerator(),
@@ -120,10 +141,10 @@ describe('getProductAvailableByProductId', () => {
 
     await individualProductDomain.addMany(individualProductData)
 
-    const reservedIndividualProduct = await individualProductDomain.getAvailableIndividualProductAndReserve(product.id)
+    const reservedIndividualProduct = await individualProductDomain.getAvailableIndividualProductAndReserve(product.id, stockLocationId)
 
     expect(reservedIndividualProduct.productId).toBe(product.id)
-    expect(reservedIndividualProduct.status).toBe('reserved')
+    expect(reservedIndividualProduct.available).toBe(false)
   })
 
   test('should remain available in case transaction is rollbacked', async () => {
@@ -136,6 +157,7 @@ describe('getProductAvailableByProductId', () => {
       productId: product.id,
       originId: null,
       originType: null,
+      stockLocationId,
       serialNumbers: [
         randomDataGenerator(),
         randomDataGenerator(),
@@ -145,11 +167,11 @@ describe('getProductAvailableByProductId', () => {
     await individualProductDomain.addMany(individualProductData)
 
     const transaction = await database.transaction()
-    const reservedIndividualProduct = await individualProductDomain.getAvailableIndividualProductAndReserve(product.id, { transaction })
+    const reservedIndividualProduct = await individualProductDomain.getAvailableIndividualProductAndReserve(product.id, stockLocationId, { transaction })
     await transaction.rollback()
 
     const individualProduct = await IndividualProductModel.findByPk(reservedIndividualProduct.id)
 
-    expect(individualProduct.status).toBe('available')
+    expect(individualProduct.available).toBe(true)
   })
 })

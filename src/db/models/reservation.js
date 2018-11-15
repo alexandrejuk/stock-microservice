@@ -5,12 +5,25 @@ module.exports = (sequelize) => {
     description: {
       type: Sequelize.STRING,
     },
-    date: {
+    reservedAt: {
+      type: Sequelize.DATE,
+    },
+    releasedAt: {
       type: Sequelize.DATE,
     },
     tecnicoId: {
       type: Sequelize.STRING,
-    }
+    },
+    originId: {
+      type: Sequelize.INTEGER,
+    },
+    originType: {
+      type: Sequelize.STRING,
+    },
+    status: {
+      type: Sequelize.ENUM(['reservado', 'liberado']),
+      defaultValue: 'reservado',
+    },
   })
 
   Reservation.associate = (models) => {
