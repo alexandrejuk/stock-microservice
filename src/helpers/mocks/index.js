@@ -3,10 +3,10 @@ const generateData = require('../randomDataGenerator')
 const dataCreator = mockCreator => custom => ({...mockCreator(), ...custom})
 
 const productMock = () => ({
-  name: generateData(),
-  brand: generateData(),
+  name: generateData().toUpperCase(),
+  brand: generateData().toUpperCase(),
   sku: generateData(),
-  category: 'relogio',
+  category: 'RELOGIO',
   hasSerialNumber: false,
   priceBuy: 1000,
   priceSell: 1200

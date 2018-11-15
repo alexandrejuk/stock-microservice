@@ -4,6 +4,8 @@ const Product = require('./product')
 const Order = require('./order')
 const orderProduct = require('./orderProduct')
 const individualProduct = require('./individualProduct')
+const reservation = require('./reservation')
+const productReservation = require('./productReservation')
 
 module.exports = [
   Stock,
@@ -12,4 +14,6 @@ module.exports = [
   Order,
   orderProduct,
   individualProduct,
+  reservation,
+  productReservation,
 ]

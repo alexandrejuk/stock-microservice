@@ -10,7 +10,7 @@ const IndividualProductModel = database.model('individualProduct')
 
 class IndividualProduct {
   async addMany (individualProductData, { transaction } = {}) {
-    const { type, productId, originId, originType, serialNumbers = [] } = individualProductData
+    const { stockLocationId, type, productId, originId, originType, serialNumbers = [] } = individualProductData
   
     if (!serialNumbers || serialNumbers.length < 1) {
       const fields = [{
@@ -38,6 +38,7 @@ class IndividualProduct {
       type,
       productId,
       originType,
+      stockLocationId,
       status: 'available'
     }))
   

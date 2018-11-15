@@ -11,6 +11,17 @@ class Product {
     return await ProductModel.findByPk(id)
   }
 
+  async getAll() {
+    return await ProductModel.findAll({})
+  }
+
+  async updateById(id, product) {
+    const productInstance = await this.getById(id)
+    await productInstance.update(product)
+
+    return productInstance
+  }
+
 }
 
 module.exports = Product

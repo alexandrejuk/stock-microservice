@@ -26,6 +26,8 @@ module.exports = (sequelize) => {
     models.individualProduct.belongsTo(models.product, {
       constraints: false,
     })
+
+    models.individualProduct.belongsTo(models.stockLocation)
   }
 
   return IndividualProduct
