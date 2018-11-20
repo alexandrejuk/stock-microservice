@@ -13,6 +13,23 @@ const productDomain = new ProductDomain()
 const individualProductDomain = new IndividualProductDomain()
 const stockDomain = new StockDomain()
 
+const include = [{
+  model: ProductReservationModel,
+  include: [
+    {
+      model: ProductModel,
+      attributes: ['name', 'brand', 'sku','category']
+    },
+    {
+      model: IndividualProductModel,
+      attributes: ['serialNumber']
+    },
+    {
+      model: StockLocationModel,
+      attributes: ['name']
+    },
+  ],
+}]
 class Reservation {
   async add (reservationData, options = {}) {
     const { transaction } = options
@@ -26,17 +43,12 @@ class Reservation {
       await this.addProductReservation(reservationProduct, createdReservation.id, options)
     }
     
-    return createdReservation.reload({
+    await createdReservation.reload({
       transaction,
-      include: [{
-        model: ProductReservationModel,
-        include: [
-          ProductModel,
-          IndividualProductModel,
-          StockLocationModel,
-        ],
-      }]
+      include,
     })
+
+    return createdReservation
   }
 
   async addProductReservation(productReservationData, reservationId, options) {

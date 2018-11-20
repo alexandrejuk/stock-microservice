@@ -1,68 +1,47 @@
 const ReservationDomain = require('./index')
-const StockDomain = require('../Stock')
-const StockLocationDomain = require('../StockLocation')
-const ProductDomain = require('../Product')
-const IndividualProductDomain = require('../IndividualProduct')
 const mocks = require('../../helpers/mocks')
 const randomDataGenerator = require('../../helpers/randomDataGenerator')
+const database = require('../../db')
 
-const reservationDomain = new ReservationDomain()
-const stockDomain = new StockDomain()
-const stockLocationDomain = new StockLocationDomain()
-const productDomain = new ProductDomain()
-const individualProductDomain = new IndividualProductDomain()
+const IndividualProductModel = database.model('individualProduct')
+const StockLocationModel = database.model('stockLocation')
+const ProductModel = database.model('product')
 
-let stockLocationId = null
-let productWihoutSerialNumberId = null
-let productWithSerialNumberId = null
+let stockLocation = null
+let productSN = null
+let product = null
+const nSerialNumber = 50
+const individualProducts = []
 
 beforeAll(async () => {
-  const stockLocation = await stockLocationDomain.add(mocks.stockLocation())
-  stockLocationId = stockLocation.id
+  stockLocation = await StockLocationModel.create(mocks.stockLocation())
 
-  const productWidhoutSerialNumber = await productDomain.add(mocks.product({
+  product = await ProductModel.create(mocks.product({
     hasSerialNumber: false,
   }))
-  productWihoutSerialNumberId = productWidhoutSerialNumber.id
 
-  const productWithSerialNumber = await productDomain.add(mocks.product({
+  productSN = await productDomain.add(mocks.product({
     hasSerialNumber: true,
   }))
-  productWithSerialNumberId = productWithSerialNumber.id
 
   await stockDomain.add({
-    productId: productWihoutSerialNumberId,
+    productId: product.id,
     quantity: 100,
     stockLocationId: stockLocation.id
   })
 
-  await stockDomain.add({
-    productId: productWithSerialNumberId,
+  await productWS.add({
+    productId: productSN.id,
     quantity: 100,
     stockLocationId: stockLocation.id
   })
 
-  individualProductData = {
-    productId: productWithSerialNumberId,
-    originId: null,
-    originType: null,
-    stockLocationId,
-    serialNumbers: [
-      randomDataGenerator(),
-      randomDataGenerator(),
-      randomDataGenerator(),
-      randomDataGenerator(),
-      randomDataGenerator(),
-      randomDataGenerator(),
-      randomDataGenerator(),
-      randomDataGenerator(),
-      randomDataGenerator(),
-      randomDataGenerator(),
-      randomDataGenerator(),
-      randomDataGenerator(),
-      randomDataGenerator(),
-      randomDataGenerator(),
-    ]
+  for(let i =0; i < nSerialNumber; i++){
+    const individualProduct = await IndividualProductModel.create({
+      productId: productWS,
+      stockLocationId: stockLocation.id,
+      serialNumber: randomDataGenerator
+    })
   }
 
   await individualProductDomain.addMany(individualProductData)
