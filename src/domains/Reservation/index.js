@@ -30,6 +30,7 @@ const include = [{
     },
   ],
 }]
+
 class Reservation {
   async add (reservationData, options = {}) {
     const { transaction } = options
@@ -56,17 +57,22 @@ class Reservation {
     const { productId, quantity, stockLocationId } = productReservationData
     const product = await productDomain.getById(productId)
     
-    if(!product.hasSerialNumber){
+    /**
+     * If the product does not have serial number, we just add the quantity that was reserved, otherwise,
+     * we need to check if there is an available individual product for that serial number 
+     */
+    if (!product.hasSerialNumber) {
       await ProductReservationModel.create({
         ...productReservationData,
         currentQuantity: quantity,
         reservationId,
       }, { transaction })
-    } else {
+    } else { 
       for(let i = 0; i < quantity; i++){
         const individualProduct = await individualProductDomain.getAvailableIndividualProductAndReserve(
           productId,
-          stockLocationId
+          stockLocationId,
+          options,
         )
     
         await ProductReservationModel.create({
