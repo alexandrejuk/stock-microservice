@@ -13,6 +13,9 @@ class CustomerDomain {
     for (let i = 0; i < documents.length && !foundCustomer; i++) {
       const document = documents[i]
       const foundCustomer = this.getByDocumentNumber(document.value)
+      if (foundCustomer) {
+        break
+      }
     }
 
     if(foundCustomer){
