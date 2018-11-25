@@ -16,9 +16,9 @@ module.exports = (sequelize) => {
     originType: {
       type: Sequelize.STRING,
     },
-    status: {
-      type: Sequelize.ENUM(['available', 'reserved']),
-      default: 'available',
+    available: {
+      type: Sequelize.BOOLEAN,
+      default: true,
     }
   })
 
@@ -27,7 +27,15 @@ module.exports = (sequelize) => {
       constraints: false,
     })
 
-    models.individualProduct.belongsTo(models.stockLocation)
+    models.individualProduct.belongsTo(models.customer, {
+      constraints: false,
+    })
+
+    models.individualProduct.belongsTo(models.stockLocation, {
+      foreignKey: {
+        allowNull: false,
+      },
+    })
   }
 
   return IndividualProduct

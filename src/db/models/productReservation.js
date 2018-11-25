@@ -2,19 +2,19 @@ const Sequelize = require('sequelize')
 
 module.exports = (sequelize) => {
   const ProductReservation = sequelize.define('productReservation', {
-    id: {
-      primaryKey: true,
-      type: Sequelize.BIGINT,
-      autoIncrement: true,
+    quantity: {
+      type: Sequelize.INTEGER,
+      allowNull: false,
     },
-    status: {
-      type: Sequelize.ENUM(['returned', 'reserved']),
-      default: 'reserved',
-    }
+    currentQuantity: {
+      type: Sequelize.INTEGER,
+      allowNull: false,
+    },
   })
 
   ProductReservation.associate = (models) => {
     ProductReservation.belongsTo(models.individualProduct)
+    ProductReservation.belongsTo(models.stockLocation)
 
     ProductReservation.belongsTo(models.reservation, {
       foreignKey: {

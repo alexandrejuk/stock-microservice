@@ -39,7 +39,7 @@ class IndividualProduct {
       productId,
       originType,
       stockLocationId,
-      status: 'available'
+      available: true,
     }))
   
     if (originType === 'orderProduct') {
@@ -49,11 +49,25 @@ class IndividualProduct {
     return await IndividualProductModel.bulkCreate(individualProductList, { transaction })
   }
 
-  async getAvailableIndividualProductAndReserve (productId, { transaction } = {}) {
+  async getAvailableQuantityByProductIdAndStockLocationId (productId, stockLocationId, { transaction } = {}) {
+    const quantity = await IndividualProductModel.count({
+      where: {
+        available: true,
+        productId,
+        stockLocationId,
+      },
+      transaction,
+    })
+
+    return quantity
+  }
+
+  async getAvailableIndividualProductAndReserve (productId, stockLocationId, { transaction } = {}) {
     const availableIndividualProduct = await IndividualProductModel.findOne({
       where: {
-        status: 'available',
-        productId: productId,
+        available: true,
+        productId,
+        stockLocationId,
       },
       transaction,
     })
@@ -67,7 +81,7 @@ class IndividualProduct {
       throw new FieldValidationError(fields)
     } 
 
-    availableIndividualProduct.status = 'reserved'
+    availableIndividualProduct.available = false
     await availableIndividualProduct.save({ transaction })
 
     return availableIndividualProduct

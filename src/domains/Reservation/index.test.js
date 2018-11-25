@@ -1,41 +1,90 @@
-const expect = require('expect');
 const ReservationDomain = require('./index')
-const StockDomain = require('../Stock')
-const StockLocationDomain = require('../StockLocation')
-const ProductDomain = require('../Product')
-const IndividualProductDomain = require('../IndividualProduct')
 const mocks = require('../../helpers/mocks')
 const randomDataGenerator = require('../../helpers/randomDataGenerator')
+const database = require('../../db')
 
 const reservationDomain = new ReservationDomain()
-const stockDomain = new StockDomain()
-const stockLocationDomain = new StockLocationDomain()
-const productDomain = new ProductDomain()
-const individualProductDomain = new IndividualProductDomain()
 
-describe.skip('add', () => {
-  beforeEach(async () => {
-    const stockLocation = await stockLocationDomain.add(mocks.stockLocation())
-    const product = await productDomain.add(mocks.product({
-      hasSerialNumber: true
-    }))
+const IndividualProductModel = database.model('individualProduct')
+const StockLocationModel = database.model('stockLocation')
+const ProductModel = database.model('product')
+const StockModel = database.model('stock')
 
-    await stockDomain.add({
-      productId: product.id,
-      quantity: 10,
-      stockLocationId: stockLocation.id
-    })
+let stockLocation = null
+let productSN = null // product with serial number
+let product = null // product without serial number
+const nSerialNumber = 50
+let individualProducts = null
 
-    await individualProductDomain.addMany({
+beforeAll(async () => {
+  stockLocation = await StockLocationModel.create(mocks.stockLocation())
 
-    })
+  product = await ProductModel.create(mocks.product({
+    hasSerialNumber: false,
+  }))
 
+  productSN = await ProductModel.create(mocks.product({
+    hasSerialNumber: true,
+  }))
 
+  await StockModel.create({
+    productId: product.id,
+    quantity: 100,
+    stockLocationId: stockLocation.id
   })
 
-  describe('add with correct data', () => {
-    test('dasdsa', () => {
-
-    })
+  await StockModel.create({
+    productId: product.id,
+    quantity: nSerialNumber,
+    stockLocationId: stockLocation.id
   })
+
+  const individualProductData = []
+  for(let i =0; i < nSerialNumber; i++){
+    individualProductData.push({
+      stockLocationId: stockLocation.id,
+      productId: productSN.id,
+      serialNumber: randomDataGenerator(), 
+      available: true,
+    })
+  }
+
+  individualProducts =  await IndividualProductModel.bulkCreate(individualProductData)
 })
+
+describe('created a new reservation', async () => {
+  let reservation = null
+  let reservationData = null
+  beforeAll(async () => {
+    reservationData = {
+      reservedAt: new Date,
+      productReservations: [
+        {
+          quantity: 50,
+          productId: product.id,
+          stockLocationId: stockLocation.id,
+        },
+        {
+          quantity: 5,
+          productId: productSN.id,
+          stockLocationId: stockLocation.id,
+        },
+      ]
+    }
+
+    reservation = await reservationDomain.add(reservationData)
+  })
+
+  test('should register a new reservation', async () => {
+    expect(reservation).toBeTruthy()
+    expect(reservation.productReservations).toHaveLength(6)
+  })
+
+  // test('should remove from stock the same quantity that was reserved', async () => {
+  //   const quantity = await stockDomain.getProductQuantity(productWihoutSerialNumberId, stockLocationId)
+
+  //   expect(quantity).toBe(50)
+  // })
+})
+
+

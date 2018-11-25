@@ -12,13 +12,13 @@ const stockLocationDomain = new StockLocationDomain()
 
 class Stock {
   
-  async add(stockData) {
+  async add(stockData, { transaction } = {}) {
     const { productId, stockLocationId } = stockData
     const foundProduct = await productDomain.getById(productId)
     const foundLocation = await stockLocationDomain.getById(stockLocationId)
 
     if (foundProduct && foundLocation){
-      return await StockModel.create(stockData)
+      return await StockModel.create(stockData, { transaction })
     }
 
     throw new ValidationError()
