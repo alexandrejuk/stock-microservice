@@ -3,18 +3,15 @@ const mocks = require('../../helpers/mocks')
 const randomDataGenerator = require('../../helpers/randomDataGenerator')
 const database = require('../../db')
 
-const reservationDomain = new ReservationDomain()
-
 const IndividualProductModel = database.model('individualProduct')
 const StockLocationModel = database.model('stockLocation')
 const ProductModel = database.model('product')
-const StockModel = database.model('stock')
 
 let stockLocation = null
-let productSN = null // product with serial number
-let product = null // product without serial number
+let productSN = null
+let product = null
 const nSerialNumber = 50
-let individualProducts = null
+const individualProducts = []
 
 beforeAll(async () => {
   stockLocation = await StockLocationModel.create(mocks.stockLocation())

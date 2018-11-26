@@ -30,7 +30,6 @@ const include = [{
     },
   ],
 }]
-
 class Reservation {
   async add (reservationData, options = {}) {
     const { transaction } = options

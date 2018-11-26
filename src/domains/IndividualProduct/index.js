@@ -6,7 +6,8 @@ const ProductDomain = require('../Product')
 const orderDomain = new OrderDomain()
 const productDomain = new ProductDomain()
 const IndividualProductModel = database.model('individualProduct')
-
+const ProductModel = database.model('product')
+const StockLocationModel = database.model('stockLocation')
 
 class IndividualProduct {
   async addMany (individualProductData, { transaction } = {}) {
@@ -85,6 +86,15 @@ class IndividualProduct {
     await availableIndividualProduct.save({ transaction })
 
     return availableIndividualProduct
+  }
+
+  async getAll () {
+    return await IndividualProductModel.findAll({
+      include: [
+        { model: StockLocationModel, required: true },
+        { model: ProductModel, required: true },
+      ]
+    })
   }
 }
 
