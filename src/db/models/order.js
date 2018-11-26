@@ -15,7 +15,8 @@ module.exports = (sequelize) => {
       }  
     },
     status: {
-      type: Sequelize.ENUM(['CANCELLED', 'REGISTERED'])
+      type: Sequelize.ENUM(['CANCELLED', 'REGISTERED']),
+      defaultValue: 'REGISTERED',
     }
   })
 
