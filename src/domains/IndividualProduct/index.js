@@ -96,6 +96,26 @@ class IndividualProduct {
       ]
     })
   }
+
+  async getById (id) {
+    return await IndividualProductModel.findByPk(id, {
+      include: [
+        { model: StockLocationModel, required: true },
+        { model: ProductModel, required: true },
+      ]
+    })
+  }
+
+  async updateById(id, serialNumber) {
+    const individualProductInstance = await this.getById(id)
+    await IndividualProductModel.update(
+      { serialNumber },
+      { where: { id } }
+    )
+
+    return individualProductInstance
+  }
+  
 }
 
 module.exports = IndividualProduct
