@@ -6,12 +6,15 @@ const database = require('../../db')
 const IndividualProductModel = database.model('individualProduct')
 const StockLocationModel = database.model('stockLocation')
 const ProductModel = database.model('product')
+const StockModel = database.model('stock')
+
+const reservationDomain = new ReservationDomain()
 
 let stockLocation = null
 let productSN = null
 let product = null
 const nSerialNumber = 50
-const individualProducts = []
+let individualProducts = null
 
 beforeAll(async () => {
   stockLocation = await StockLocationModel.create(mocks.stockLocation())
