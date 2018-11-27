@@ -30,6 +30,7 @@ const include = [{
     },
   ],
 }]
+
 class Reservation {
   async add (reservationData, options = {}) {
     const { transaction } = options
@@ -62,7 +63,9 @@ class Reservation {
      */
     if (!product.hasSerialNumber) {
       await ProductReservationModel.create({
-        ...productReservationData,
+        productId,
+        stockLocationId,
+        quantity,
         currentQuantity: quantity,
         reservationId,
       }, { transaction })
@@ -71,12 +74,13 @@ class Reservation {
         const individualProduct = await individualProductDomain.getAvailableIndividualProductAndReserve(
           productId,
           stockLocationId,
-          options,
+          { transaction }
         )
     
         await ProductReservationModel.create({
-          ...productReservationData,
+          productId,
           quantity: 1,
+          stockLocationId,
           currentQuantity: 1,
           reservationId,
           individualProductId: individualProduct.id,
@@ -91,7 +95,7 @@ class Reservation {
       originId: reservationId,
       originType: 'reservation',
       description: 'reservation registration'
-    })
+    }, { transaction })
   }
 }
 

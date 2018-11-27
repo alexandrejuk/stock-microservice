@@ -2,18 +2,19 @@ const ReservationDomain = require('./index')
 const mocks = require('../../helpers/mocks')
 const randomDataGenerator = require('../../helpers/randomDataGenerator')
 const database = require('../../db')
-
+const StockDomain = require('./../Stock')
 const IndividualProductModel = database.model('individualProduct')
 const StockLocationModel = database.model('stockLocation')
 const ProductModel = database.model('product')
 const StockModel = database.model('stock')
 
 const reservationDomain = new ReservationDomain()
+const stockDomain = new StockDomain()
 
 let stockLocation = null
 let productSN = null
 let product = null
-const nSerialNumber = 50
+const numberOfProducts = 100
 let individualProducts = null
 
 beforeAll(async () => {
@@ -29,25 +30,24 @@ beforeAll(async () => {
 
   await StockModel.create({
     productId: product.id,
-    quantity: 100,
+    quantity: numberOfProducts,
     stockLocationId: stockLocation.id
   })
 
   await StockModel.create({
-    productId: product.id,
-    quantity: nSerialNumber,
+    productId: productSN.id,
+    quantity: numberOfProducts,
     stockLocationId: stockLocation.id
   })
 
-  const individualProductData = []
-  for(let i =0; i < nSerialNumber; i++){
-    individualProductData.push({
+  const individualProductData = Array(numberOfProducts)
+    .fill(0)
+    .map(() => ({
       stockLocationId: stockLocation.id,
       productId: productSN.id,
       serialNumber: randomDataGenerator(), 
       available: true,
-    })
-  }
+    }))
 
   individualProducts =  await IndividualProductModel.bulkCreate(individualProductData)
 })
@@ -55,17 +55,19 @@ beforeAll(async () => {
 describe('created a new reservation', async () => {
   let reservation = null
   let reservationData = null
+  let reserveQuantity = 40
+
   beforeAll(async () => {
     reservationData = {
       reservedAt: new Date,
       productReservations: [
         {
-          quantity: 50,
+          quantity: reserveQuantity,
           productId: product.id,
           stockLocationId: stockLocation.id,
         },
         {
-          quantity: 5,
+          quantity: reserveQuantity,
           productId: productSN.id,
           stockLocationId: stockLocation.id,
         },
@@ -77,14 +79,17 @@ describe('created a new reservation', async () => {
 
   test('should register a new reservation', async () => {
     expect(reservation).toBeTruthy()
-    expect(reservation.productReservations).toHaveLength(6)
+    expect(reservation.productReservations).toHaveLength(reserveQuantity + 1)
   })
 
-  // test('should remove from stock the same quantity that was reserved', async () => {
-  //   const quantity = await stockDomain.getProductQuantity(productWihoutSerialNumberId, stockLocationId)
+  test('should remove from stock the same quantity that was reserved', async () => {
+    const quantity = await stockDomain.getProductQuantity(product.id, stockLocation.id)
+    const quantitySN = await stockDomain.getProductQuantity(productSN.id, stockLocation.id)
 
-  //   expect(quantity).toBe(50)
-  // })
+    expect(quantity).toBe(numberOfProducts - reserveQuantity)
+    expect(quantitySN).toBe(numberOfProducts - reserveQuantity)
+
+  })
 })
 
 
