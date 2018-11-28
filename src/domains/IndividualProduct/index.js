@@ -100,10 +100,31 @@ class IndividualProduct {
   async getById (id) {
     return await IndividualProductModel.findByPk(id, {
       include: [
-        { model: StockLocationModel, required: true },
-        { model: ProductModel, required: true },
-      ]
+        StockLocationModel,
+        ProductModel,
+      ],
     })
+  }
+
+  async makeAvailableById(id) {
+    const individualProduct = await this.getById(id)
+
+    individualProduct.available = true
+    await individualProduct.save()
+  }
+
+  async reserveById(id) {
+    const individualProduct = await this.getById(id)
+    if(individualProduct.available) {
+      individualProduct.available = false
+
+      await individualProduct.save()
+    } else {
+      throw new FieldValidationError([{
+        name: 'available',
+        message: 'This product must be available in order for you to reserve it',
+      }])
+    }
   }
 
   async updateById(id, serialNumber) {

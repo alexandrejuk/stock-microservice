@@ -92,4 +92,39 @@ describe('created a new reservation', async () => {
   })
 })
 
+describe('release a reservation', async () => {
+  let reservation = null
+  let reservationData = null
+  let reserveQuantity = 40
+
+  beforeAll(async () => {
+    reservationData = {
+      reservedAt: new Date,
+      productReservations: [
+        {
+          quantity: reserveQuantity,
+          productId: product.id,
+          stockLocationId: stockLocation.id,
+        },
+        {
+          quantity: reserveQuantity,
+          productId: productSN.id,
+          stockLocationId: stockLocation.id,
+        },
+      ]
+    }
+
+    reservation = await reservationDomain.add(reservationData)
+  })
+
+  test('should register a new reservation', async () => {
+    expect(reservation).toBeTruthy()
+    expect(reservation.productReservations).toHaveLength(reserveQuantity + 1)
+
+    console.log(JSON.stringify(reservation))
+  })
+})
+
+
+
 
