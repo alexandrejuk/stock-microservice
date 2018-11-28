@@ -15,7 +15,7 @@ module.exports = (sequelize) => {
       type: Sequelize.STRING,
     },
     originId: {
-      type: Sequelize.INTEGER,
+      type: Sequelize.STRING,
     },
     originType: {
       type: Sequelize.STRING,
