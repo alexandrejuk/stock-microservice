@@ -1,3 +1,4 @@
+require('./helpers/loadenv')
 const Express = require('express')
 const bodyParse = require('body-parser')
 const cors = require('cors')
@@ -9,6 +10,7 @@ const stockRoute = require('./routes/stock')
 const stockLocationRoute = require('./routes/stockLocation')
 const reservationRoute = require('./routes/reservation')
 const individualProductsRoute = require('./routes/individualProduct')
+
 const app = Express()
 
 /* middlewares */
