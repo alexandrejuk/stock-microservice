@@ -120,8 +120,6 @@ describe('release a reservation', async () => {
   test('should register a new reservation', async () => {
     expect(reservation).toBeTruthy()
     expect(reservation.productReservations).toHaveLength(reserveQuantity + 1)
-
-    console.log(JSON.stringify(reservation))
   })
 })
 

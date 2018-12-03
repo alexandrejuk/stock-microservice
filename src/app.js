@@ -10,6 +10,7 @@ const stockRoute = require('./routes/stock')
 const stockLocationRoute = require('./routes/stockLocation')
 const reservationRoute = require('./routes/reservation')
 const individualProductsRoute = require('./routes/individualProduct')
+const customerRoute = require('./routes/customer')
 
 const app = Express()
 
@@ -20,6 +21,7 @@ app.use(logger('dev'))
 
 /* routes */
 app.use('/api', productRoute)
+app.use('/api', customerRoute)
 app.use('/api', orderRoute)
 app.use('/api', stockRoute)
 app.use('/api', stockLocationRoute)
