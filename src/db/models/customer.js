@@ -13,6 +13,10 @@ module.exports = (sequelize) => {
         this.setDataValue('name', val.toUpperCase());
       },
     },
+    mainId: {
+      type: Sequelize.STRING,
+      allowNull: false,
+    },
     type: {
       type: Sequelize.ENUM(['legal', 'natural']),
       allowNull: false,

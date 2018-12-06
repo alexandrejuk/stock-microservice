@@ -13,10 +13,6 @@ module.exports = (sequelize) => {
       type: Sequelize.STRING,
       allowNull: true,
     },
-    cnpj: {
-      type: Sequelize.STRING,
-      allowNull: false,
-    },
   })
 
   LegalPerson.associate = (models) => {

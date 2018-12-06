@@ -9,10 +9,6 @@ module.exports = (sequelize) => {
         this.setDataValue('nickName', val.toUpperCase());
       },
     },
-    cpf: {
-      type: Sequelize.STRING,
-      allowNull: false,
-    },
   })
 
   NaturalPerson.associate = (models) => {
