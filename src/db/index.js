@@ -1,7 +1,7 @@
 const Sequelize = require('sequelize')
 const models = require('./models')
 const sequelize = new Sequelize('postgres', 'postgres', 'postgres', {
-  host: 'localhost',
+  host: process.env.DATABASE_HOST || 'localhost',
   dialect: 'postgres',
   operatorsAliases: false,
   logging: false,
