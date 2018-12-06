@@ -13,13 +13,15 @@
     "pg": "^7.5.0",
     "pg-hstore": "^2.3.2",
     "ramda": "^0.25.0",
-    "sequelize": "^4.41.0"
+    "sequelize": "^4.41.0",
+    "shelljs": "^0.8.3"
   },
   "scripts": {
     "start": "node ./src/app.js",
     "start:dev": "nodemon ./src/app.js",
     "test": "jest",
-    "migrate": "sequelize db:migrate"
+    "migrate": "sequelize db:migrate",
+    "deploy": "node ./scripts/deploy.js"
   },
   "devDependencies": {
     "jest": "^23.6.0",

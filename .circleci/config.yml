@@ -1,6 +1,6 @@
 version: 2
 jobs:
-  build:
+  test:
     working_directory: ~/server
     docker: 
       - image: circleci/node:8
@@ -11,6 +11,9 @@ jobs:
     environment:
       NODE_ENV: test
     steps:
+      - add_ssh_keys:
+          fingerprints:
+            - "23:d1:f3:bd:fe:93:ed:78:74:f3:6e:1c:37:6b:c4:71"
       - checkout
       - run:
           name: update-npm 
@@ -18,12 +21,31 @@ jobs:
       - restore_cache:
           key: dependency-cache-{{ checksum "package.json" }}
       - run:
-          name: install-npm-wee
+          name: install-dependencies
           command: yarn install
       - save_cache:
           key: dependency-cache-{{ checksum "package.json" }}
           paths:
             - ./node_modules
       - run:
+          name: create-tables
+          command: './scripts/createTable'
+      - run:
+          name: run-server
+          command: 'yarn start'
+          background: true
+      - run:
           name: test
           command: yarn test
+      - run:
+          name: add-known-host
+          command: ssh-keyscan $SSH_HOST >> ~/.ssh/known_hosts
+      - run:
+          name: testoi
+          command: |
+            ssh $SSH_USER@$SSH_HOST "cd $PROJECT_PATH && git checkout $CIRCLE_BRANCH && git pull --rebase origin $CIRCLE_BRANCH && yarn install && yarn deploy"
+workflows:
+  version: 2
+  test_and_build:
+    jobs:
+      - test
