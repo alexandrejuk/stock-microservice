@@ -72,13 +72,13 @@ test('should create a legal person customer', async () => {
   expect(customer.legalPerson.legalName).toBe(customerDataPJ.legalPerson.legalName.toUpperCase())
 })
 
-describe('getByDocumentNumber', () => {
-  test('should create a new customer if it does not exist in our database', async () => {
-    const customer = customerDomain.getByDocumentNumber('423423423')
+// describe('getByDocumentNumber', () => {
+//   test('should create a new customer if it does not exist in our database', async () => {
+//     const customer = customerDomain.getByDocumentNumber('423423423')
 
-    expect(mockGetCustomerByDocumentId).toHaveBeenCalled()
-  })
-})
+//     expect(mockGetCustomerByDocumentId).toHaveBeenCalled()
+//   })
+// })
 // test('should get customer by its document number', async () => {
 //   const documerNumber = String(customerDataPJ.documents[0].value)
 //   const foundCustomer = await customerDomain.getByDocumentNumber(documerNumber)

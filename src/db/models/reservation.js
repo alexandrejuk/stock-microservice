@@ -27,7 +27,9 @@ module.exports = (sequelize) => {
   })
 
   Reservation.associate = (models) => {
-    Reservation.hasMany(models.productReservation)
+    Reservation.hasMany(models.reservationItem, {
+      as: 'items',
+    })
   }
 
   return Reservation

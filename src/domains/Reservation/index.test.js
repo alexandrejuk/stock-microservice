@@ -60,7 +60,7 @@ describe('created a new reservation', async () => {
   beforeAll(async () => {
     reservationData = {
       reservedAt: new Date,
-      productReservations: [
+      items: [
         {
           quantity: reserveQuantity,
           productId: product.id,
@@ -79,7 +79,7 @@ describe('created a new reservation', async () => {
 
   test('should register a new reservation', async () => {
     expect(reservation).toBeTruthy()
-    expect(reservation.productReservations).toHaveLength(reserveQuantity + 1)
+    expect(reservation.items).toHaveLength(reserveQuantity + 1)
   })
 
   test('should remove from stock the same quantity that was reserved', async () => {
@@ -100,7 +100,7 @@ describe('release a reservation', async () => {
   beforeAll(async () => {
     reservationData = {
       reservedAt: new Date,
-      productReservations: [
+      items: [
         {
           quantity: reserveQuantity,
           productId: product.id,
@@ -119,7 +119,7 @@ describe('release a reservation', async () => {
 
   test('should register a new reservation', async () => {
     expect(reservation).toBeTruthy()
-    expect(reservation.productReservations).toHaveLength(reserveQuantity + 1)
+    expect(reservation.items).toHaveLength(reserveQuantity + 1)
   })
 })
 

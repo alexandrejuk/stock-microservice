@@ -1,7 +1,7 @@
 const Sequelize = require('sequelize')
 
 module.exports = (sequelize) => {
-  const ProductReservation = sequelize.define('productReservation', {
+  const ReservationItem = sequelize.define('reservationItem', {
     quantity: {
       type: Sequelize.INTEGER,
       allowNull: false,
@@ -12,22 +12,22 @@ module.exports = (sequelize) => {
     },
   })
 
-  ProductReservation.associate = (models) => {
-    ProductReservation.belongsTo(models.individualProduct)
-    ProductReservation.belongsTo(models.stockLocation)
+  ReservationItem.associate = (models) => {
+    ReservationItem.belongsTo(models.individualProduct)
+    ReservationItem.belongsTo(models.stockLocation)
 
-    ProductReservation.belongsTo(models.reservation, {
+    ReservationItem.belongsTo(models.reservation, {
       foreignKey: {
         allowNull: false,
       },
     })
 
-    ProductReservation.belongsTo(models.product, {
+    ReservationItem.belongsTo(models.product, {
       foreignKey: {
         allowNull: false,
       },
     })
   }
 
-  return ProductReservation
+  return ReservationItem
 }

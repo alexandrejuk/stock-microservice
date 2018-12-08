@@ -8,14 +8,15 @@ const ReservationModel = database.model('reservation')
 const ProductModel = database.model('product')
 const StockLocationModel = database.model('stockLocation')
 const IndividualProductModel = database.model('individualProduct')
-const ProductReservationModel = database.model('productReservation')
+const ReservationItemModel = database.model('reservationItem')
 
 const productDomain = new ProductDomain()
 const individualProductDomain = new IndividualProductDomain()
 const stockDomain = new StockDomain()
 
 const include = [{
-  model: ProductReservationModel,
+  model: ReservationItemModel,
+  as: 'items',
   include: [
     {
       model: ProductModel,
@@ -48,13 +49,13 @@ class Reservation {
 
     const {
       id,
-      productReservations = [],
+      items = [],
       status,
     } = reservationData
 
     const reservation = await ReservationModel.findByPk(id)
 
-    for(const productReservationData of productReservations){
+    for(const productReservationData of items){
       this.updateProductReservation(productReservationData, id, { transaction })
     }
 
@@ -74,7 +75,7 @@ class Reservation {
   async updateProductReservation (productReservationData, reservationId, options = {}) {
     const { transaction } = options
 
-    const productReservation = await ProductReservationModel.findOne({
+    const productReservation = await ReservationItemModel.findOne({
       where: {
         id: productReservationData.id,
         reservationId,
@@ -163,7 +164,7 @@ class Reservation {
       { transaction },
     )
 
-    for(const reservationProduct of reservationData.productReservations) {
+    for(const reservationProduct of reservationData.items) {
       await this.addProductReservation(reservationProduct, createdReservation.id, options)
     }
     
@@ -185,7 +186,7 @@ class Reservation {
      * we need to check if there is an available individual product for that serial number 
      */
     if (!product.hasSerialNumber) {
-      await ProductReservationModel.create({
+      await ReservationItemModel.create({
         productId,
         stockLocationId,
         quantity,
@@ -200,7 +201,7 @@ class Reservation {
           { transaction }
         )
     
-        await ProductReservationModel.create({
+        await ReservationItemModel.create({
           productId,
           quantity: 1,
           stockLocationId,
