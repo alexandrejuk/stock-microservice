@@ -13,8 +13,12 @@ module.exports = (sequelize) => {
   })
 
   ReservationItem.associate = (models) => {
-    ReservationItem.belongsTo(models.individualProduct)
-    ReservationItem.belongsTo(models.stockLocation)
+    ReservationItem.belongsToMany(
+      models.individualProduct,
+      {
+        through: models.reservationItemIndividualProduct,
+      }
+    )
 
     ReservationItem.belongsTo(models.reservation, {
       foreignKey: {

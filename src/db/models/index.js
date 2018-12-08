@@ -9,6 +9,8 @@ const reservationItem = require('./reservationItem')
 const customer = require('./customer')
 const legalPerson = require('./legalPerson')
 const naturalPerson = require('./naturalPerson')
+const reservationItemHistory = require('./reservationItemHistory')
+const reservationItemIndividualProduct = require('./reservationItemIndividualProduct')
 
 module.exports = [
   Stock,
@@ -22,4 +24,6 @@ module.exports = [
   customer,
   legalPerson,
   naturalPerson,
+  reservationItemHistory,
+  reservationItemIndividualProduct,
 ]

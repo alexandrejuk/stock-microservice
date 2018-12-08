@@ -27,6 +27,8 @@ module.exports = (sequelize) => {
   })
 
   Reservation.associate = (models) => {
+    Reservation.belongsTo(models.stockLocation)
+
     Reservation.hasMany(models.reservationItem, {
       as: 'items',
     })

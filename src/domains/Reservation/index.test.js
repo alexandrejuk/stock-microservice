@@ -55,21 +55,20 @@ beforeAll(async () => {
 describe('created a new reservation', async () => {
   let reservation = null
   let reservationData = null
-  let reserveQuantity = 40
+  let reserveQuantity = 2
 
   beforeAll(async () => {
     reservationData = {
       reservedAt: new Date,
+      stockLocationId: stockLocation.id,
       items: [
         {
           quantity: reserveQuantity,
           productId: product.id,
-          stockLocationId: stockLocation.id,
         },
         {
           quantity: reserveQuantity,
           productId: productSN.id,
-          stockLocationId: stockLocation.id,
         },
       ]
     }
@@ -79,7 +78,18 @@ describe('created a new reservation', async () => {
 
   test('should register a new reservation', async () => {
     expect(reservation).toBeTruthy()
-    expect(reservation.items).toHaveLength(reserveQuantity + 1)
+    expect(reservation.items).toHaveLength(2)
+  })
+
+  test('should reserve the quantity that was passed', () => {
+    for (const item of reservation.items) {
+      const itemData = reservationData.items.find(({ productId }) => productId === item.productId)
+
+      expect(item.quantity).toBe(itemData.quantity)
+      if(item.productId === productSN.id){
+        expect(item.individualProducts).toHaveLength(reserveQuantity)
+      }
+    }
   })
 
   test('should remove from stock the same quantity that was reserved', async () => {
@@ -95,21 +105,20 @@ describe('created a new reservation', async () => {
 describe('release a reservation', async () => {
   let reservation = null
   let reservationData = null
-  let reserveQuantity = 40
+  let reserveQuantity = 2
 
   beforeAll(async () => {
     reservationData = {
       reservedAt: new Date,
+      stockLocationId: stockLocation.id,
       items: [
         {
           quantity: reserveQuantity,
           productId: product.id,
-          stockLocationId: stockLocation.id,
         },
         {
           quantity: reserveQuantity,
           productId: productSN.id,
-          stockLocationId: stockLocation.id,
         },
       ]
     }
@@ -118,8 +127,27 @@ describe('release a reservation', async () => {
   })
 
   test('should register a new reservation', async () => {
-    expect(reservation).toBeTruthy()
-    expect(reservation.items).toHaveLength(reserveQuantity + 1)
+    const itemWithSerialNumber = reservation.items[1]
+    const itemWithoutSerialNumber = reservation.items[0]
+
+    await reservationDomain.release({
+      id: reservation.id,
+      type: 'return',
+      items: [
+        {
+          id: itemWithSerialNumber.id,
+          quantity: 2,
+          individualProducts: [
+            itemWithSerialNumber.individualProducts[0].reservationItemIndividualProduct.id,
+            itemWithSerialNumber.individualProducts[1].reservationItemIndividualProduct.id
+          ]
+        },
+        {
+          id: itemWithoutSerialNumber.id,
+          quantity: 2,
+        }
+      ]
+    })
   })
 })
 
