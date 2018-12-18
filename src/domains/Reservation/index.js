@@ -85,6 +85,75 @@ class Reservation {
     return createdReservation
   }
 
+  async return (returnData) {
+    const reservation = ReservationModel
+      .findByPk(returnData.id)
+
+    for(const item of returnData.items){
+      await this.releaseItem(
+        item,
+        reservation.id,
+        reservation.stockLocationId
+      )
+    }
+  }
+
+  async returnItem (itemData, reservationId, stockLocationId) {
+    const item = await ReservationItemModel.findByPk(itemData.id)
+    const product = await productDomain.getById(item.productId)
+
+    const currentQuantity = item.currentQuantity - itemData.quantity
+
+    if (currentQuantity < 0) {
+      throw new Error('Quantity available is not sufficient for this return')
+    }
+
+    const history = await HistoryModel.create({
+      reservationItemId: itemData.id,
+      quantity: itemData.quantity,
+      type: 'return',
+    })
+
+    item.currentQuantity = currentQuantity
+    await item.save()
+
+    await stockDomain.add({
+      stockLocationId,
+      quantity: itemData.quantity,
+      productId: product.id,
+      originId: reservationId,
+      originType: 'reservation',
+      description: 'reservation return'
+    })
+
+    if(product.hasSerialNumber) {
+      const { individualProducts = [] } = itemData
+      if(itemData.quantity !== individualProducts.length){
+        throw new Error('The number you are trying to release needs to be the same as the individualProducts')
+      }
+
+      for(const productIndividualId of individualProducts) {
+        const individualProduct = await ReservationItemIndividualProductModel.findByPk(
+          productIndividualId,
+        )
+  
+        if (individualProduct.reservationItemId !== itemData.id) {
+          throw new Error('This individual product does not belong to this reservation')
+        }
+  
+        if (!individualProduct.available) {
+          throw new Error('This individual product is no longer available')
+        }
+    
+        individualProduct.available = false
+        
+        await individualProductDomain.makeAvailableById(individualProduct.id)
+        await history.addReservationItemIndividualProduct(individualProduct.id)
+        await individualProduct.save()
+      }
+    }
+  }
+
   async release (reservationData) {
     const reservation = ReservationModel
       .findByPk(reservationData.id)
