@@ -159,6 +159,55 @@ describe('release a reservation', async () => {
   })
 })
 
+// describe('return reservation', async () => {
+//   let reservation = null
+//   let reservationData = null
+//   let reserveQuantity = 2
+
+//   beforeAll(async () => {
+//     reservationData = {
+//       reservedAt: new Date,
+//       stockLocationId: stockLocation.id,
+//       customerId: customer.id,
+//       items: [
+//         {
+//           quantity: reserveQuantity,
+//           productId: product.id,
+//         },
+//         {
+//           quantity: reserveQuantity,
+//           productId: productSN.id,
+//         },
+//       ]
+//     }
+
+//     reservation = await reservationDomain.add(reservationData)
+//   })
+
+//   test('should return items of a reservation', async () => {
+//     const itemWithSerialNumber = reservation.items[1]
+//     const itemWithoutSerialNumber = reservation.items[0]
+
+//     await reservationDomain.return({
+//       id: reservation.id,
+//       type: 'return',
+//       items: [
+//         {
+//           id: itemWithSerialNumber.id,
+//           quantity: 2,
+//           individualProducts: [
+//             itemWithSerialNumber.individualProducts[0].reservationItemIndividualProduct.id,
+//             itemWithSerialNumber.individualProducts[1].reservationItemIndividualProduct.id
+//           ]
+//         },
+//         {
+//           id: itemWithoutSerialNumber.id,
+//           quantity: 2,
+//         }
+//       ]
+//     })
+//   })
+// })
 
 
 
