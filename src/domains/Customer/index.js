@@ -26,6 +26,12 @@ class CustomerDomain {
     return customer
   }
 
+  async getById(id) {
+    const customer = await Customer.findByPk(id)
+
+    return customer
+  }
+
   async getByDocumentNumber(documentNumber) {
     const customer = await Customer.findOne({
       where: {
@@ -44,7 +50,6 @@ class CustomerDomain {
      */
     const foundCustomerInConnecta = await connectaService.getCustomerByDocumentId(documentNumber)
     const formattedCustomer = customerFormatter(foundCustomerInConnecta)
-
 
     const createdCustomer = await this.create(formattedCustomer)
 

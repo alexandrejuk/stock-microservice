@@ -1,6 +1,7 @@
 const database = require('../../db')
 const ProductDomain = require('../Product')
 const StockDomain = require('../Stock')
+const CustomerDomain = require('../Customer')
 const IndividualProductDomain = require('../IndividualProduct')
 const { FieldValidationError } = require('../../errors')
 
@@ -11,12 +12,15 @@ const IndividualProductModel = database.model('individualProduct')
 const ReservationItemModel = database.model('reservationItem')
 const HistoryModel = database.model('reservationItemHistory') 
 const ReservationItemIndividualProductModel = database.model('reservationItemIndividualProduct')
+const CustomerModel = database.model('customer')
 
 const productDomain = new ProductDomain()
 const individualProductDomain = new IndividualProductDomain()
 const stockDomain = new StockDomain()
+const customerDomain = new CustomerDomain()
 
 const include = [
+  CustomerModel,
   {
     model: StockLocationModel,
     attributes: ['name']
@@ -162,6 +166,11 @@ class Reservation {
 
   async add (reservationData, options = {}) {
     const { transaction } = options
+    const customer = await customerDomain.getById(reservationData.customerId)
+    
+    if(!customer){
+      throw new Error("Customer not found, it")
+    }
 
     const createdReservation = await ReservationModel.create(
       reservationData,
@@ -176,6 +185,9 @@ class Reservation {
         options,
       )
     }
+
+    createdReservation.setCustomer(customer)
+    await createdReservation.save()
     
     await createdReservation.reload({
       transaction,
@@ -271,7 +283,7 @@ class Reservation {
         )
       }
 
-      item.addIndividualProducts(individualProducts)
+      await item.addIndividualProducts(individualProducts, { transaction })
     }
 
     await stockDomain.add({

@@ -7,15 +7,19 @@ const IndividualProductModel = database.model('individualProduct')
 const StockLocationModel = database.model('stockLocation')
 const ProductModel = database.model('product')
 const StockModel = database.model('stock')
+const CustomerDomain = require('../Customer')
 
 const reservationDomain = new ReservationDomain()
 const stockDomain = new StockDomain()
+const customerDomain = new CustomerDomain()
 
 let stockLocation = null
 let productSN = null
 let product = null
 const numberOfProducts = 100
 let individualProducts = null
+const cnpj = "06062933000190"
+let customer = null
 
 beforeAll(async () => {
   stockLocation = await StockLocationModel.create(mocks.stockLocation())
@@ -23,6 +27,8 @@ beforeAll(async () => {
   product = await ProductModel.create(mocks.product({
     hasSerialNumber: false,
   }))
+
+  customer = await customerDomain.getByDocumentNumber(cnpj)
 
   productSN = await ProductModel.create(mocks.product({
     hasSerialNumber: true,
@@ -61,6 +67,7 @@ describe('created a new reservation', async () => {
     reservationData = {
       reservedAt: new Date,
       stockLocationId: stockLocation.id,
+      customerId: customer.id,
       items: [
         {
           quantity: reserveQuantity,
@@ -111,6 +118,7 @@ describe('release a reservation', async () => {
     reservationData = {
       reservedAt: new Date,
       stockLocationId: stockLocation.id,
+      customerId: customer.id,
       items: [
         {
           quantity: reserveQuantity,

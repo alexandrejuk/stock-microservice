@@ -10,6 +10,7 @@ const add = async (req, res, next) => {
     await transaction.commit()
     res.send(response)
   } catch (error) {
+    console.log(error)
     await transaction.rollback()
     next(error)
   }
