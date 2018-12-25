@@ -97,7 +97,7 @@ class IndividualProduct {
     })
   }
 
-  async getById (id) {
+  async getById (id, { transaction } = {}) {
     return await IndividualProductModel.findByPk(id, {
       include: [
         StockLocationModel,
@@ -106,19 +106,19 @@ class IndividualProduct {
     })
   }
 
-  async makeAvailableById(id) {
+  async makeAvailableById(id, { transaction } = {}) {
     const individualProduct = await this.getById(id)
 
     individualProduct.available = true
-    await individualProduct.save()
+    await individualProduct.save({ transaction })
   }
 
-  async reserveById(id) {
-    const individualProduct = await this.getById(id)
+  async reserveById(id, { transaction } = {}) {
+    const individualProduct = await this.getById(id, { transaction })
     if(individualProduct.available) {
       individualProduct.available = false
 
-      await individualProduct.save()
+      await individualProduct.save({ transaction })
     } else {
       throw new FieldValidationError([{
         name: 'available',

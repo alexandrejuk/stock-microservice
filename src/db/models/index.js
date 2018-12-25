@@ -1,16 +1,23 @@
 const Stock = require('./stock')
 const StockLocation = require('./stockLocation')
 const Product = require('./product')
-const Order = require('./order')
-const orderProduct = require('./orderProduct')
 const individualProduct = require('./individualProduct')
-const reservation = require('./reservation')
-const reservationItem = require('./reservationItem')
+
+/** Customer Models */
 const customer = require('./customer')
 const legalPerson = require('./legalPerson')
 const naturalPerson = require('./naturalPerson')
-const reservationItemHistory = require('./reservationItemHistory')
-const reservationItemIndividualProduct = require('./reservationItemIndividualProduct')
+
+/** Order Models */
+const Order = require('./order')
+const orderProduct = require('./orderProduct')
+
+/** Reservation Models */
+const reservation = require('./reservation')
+const reservationProduct = require('./reservationProduct')
+const reservationProductHistory = require('./reservationProductHistory')
+const reservationIndividualProduct = require('./reservationIndividualProduct')
+const reservationIndividualProductHistory = require('./reservationIndividualProductHistory')
 
 module.exports = [
   Stock,
@@ -19,11 +26,12 @@ module.exports = [
   Order,
   orderProduct,
   individualProduct,
-  reservation,
-  reservationItem,
   customer,
   legalPerson,
   naturalPerson,
-  reservationItemHistory,
-  reservationItemIndividualProduct,
+  reservation,
+  reservationProduct,
+  reservationProductHistory,
+  reservationIndividualProduct,
+  reservationIndividualProductHistory,
 ]

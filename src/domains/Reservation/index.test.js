@@ -3,11 +3,16 @@ const mocks = require('../../helpers/mocks')
 const randomDataGenerator = require('../../helpers/randomDataGenerator')
 const database = require('../../db')
 const StockDomain = require('./../Stock')
+const CustomerDomain = require('../Customer')
+
 const IndividualProductModel = database.model('individualProduct')
 const StockLocationModel = database.model('stockLocation')
 const ProductModel = database.model('product')
 const StockModel = database.model('stock')
-const CustomerDomain = require('../Customer')
+const ReservationProductModel = database.model('reservationProduct')
+const ReservationIndividualProductModel = database.model('reservationIndividualProduct')
+const HistoryModel = database.model('reservationProductHistory')
+const IndividualHistoryModel = database.model('reservationIndividualProductHistory')
 
 const reservationDomain = new ReservationDomain()
 const stockDomain = new StockDomain()
@@ -58,8 +63,7 @@ beforeAll(async () => {
   individualProducts =  await IndividualProductModel.bulkCreate(individualProductData)
 })
 
-describe('created a new reservation', async () => {
-  let reservation = null
+describe('add new reservation', async () => {
   let reservationData = null
   let reserveQuantity = 2
 
@@ -68,146 +72,217 @@ describe('created a new reservation', async () => {
       reservedAt: new Date,
       stockLocationId: stockLocation.id,
       customerId: customer.id,
-      items: [
+      products: [
         {
           quantity: reserveQuantity,
           productId: product.id,
         },
+      ],
+      individualProducts: [
         {
-          quantity: reserveQuantity,
           productId: productSN.id,
         },
-      ]
+      ] 
     }
-
-    reservation = await reservationDomain.add(reservationData)
   })
 
   test('should register a new reservation', async () => {
+    const reservation = await reservationDomain.add(reservationData)
+
     expect(reservation).toBeTruthy()
-    expect(reservation.items).toHaveLength(2)
+    expect(reservation.products).toHaveLength(1)
+    expect(reservation.individualProducts).toHaveLength(1)
   })
 
-  test('should reserve the quantity that was passed', () => {
-    for (const item of reservation.items) {
-      const itemData = reservationData.items.find(({ productId }) => productId === item.productId)
 
-      expect(item.quantity).toBe(itemData.quantity)
-      if(item.productId === productSN.id){
-        expect(item.individualProducts).toHaveLength(reserveQuantity)
-      }
-    }
+  test('should throw error if product has serial number', async () => {
+    return await expect(
+      reservationDomain.add({
+        ...reservationData,
+        products: [
+          ...reservationData.products,
+          {
+            quantity: 2,
+            productId: productSN.id,
+          },
+        ]
+      }),
+    ).rejects.toThrow()
   })
 
-  test('should remove from stock the same quantity that was reserved', async () => {
-    const quantity = await stockDomain.getProductQuantity(product.id, stockLocation.id)
-    const quantitySN = await stockDomain.getProductQuantity(productSN.id, stockLocation.id)
-
-    expect(quantity).toBe(numberOfProducts - reserveQuantity)
-    expect(quantitySN).toBe(numberOfProducts - reserveQuantity)
-
+  test('should throw error if a individual product does not have serial number', async () => {
+    return await expect(
+      reservationDomain.add({
+        ...reservationData,
+        individualProducts: [
+          {
+            productId: product.id,
+          },
+        ]
+      }),
+    ).rejects.toThrow()
   })
 })
 
-describe('release a reservation', async () => {
-  let reservation = null
+describe('release reservation', () => {
   let reservationData = null
-  let reserveQuantity = 2
+  const reserveQuantity = 10
+  const releaseQuantity = 5
+  let reservation = null
 
   beforeAll(async () => {
     reservationData = {
       reservedAt: new Date,
       stockLocationId: stockLocation.id,
       customerId: customer.id,
-      items: [
+      products: [
         {
           quantity: reserveQuantity,
           productId: product.id,
         },
+      ],
+      individualProducts: [
         {
-          quantity: reserveQuantity,
           productId: productSN.id,
         },
-      ]
+      ] 
     }
 
     reservation = await reservationDomain.add(reservationData)
   })
 
-  test('should register a new reservation', async () => {
-    const itemWithSerialNumber = reservation.items[1]
-    const itemWithoutSerialNumber = reservation.items[0]
+  test('should release specified quantity of a product', async () => {
+    const productId = reservation.products[0].id
 
     await reservationDomain.release({
       id: reservation.id,
-      type: 'return',
-      items: [
-        {
-          id: itemWithSerialNumber.id,
-          quantity: 2,
-          individualProducts: [
-            itemWithSerialNumber.individualProducts[0].reservationItemIndividualProduct.id,
-            itemWithSerialNumber.individualProducts[1].reservationItemIndividualProduct.id
-          ]
-        },
-        {
-          id: itemWithoutSerialNumber.id,
-          quantity: 2,
-        }
-      ]
+      products: [{
+        id: productId,
+        quantity: releaseQuantity,
+      }]
     })
+
+    const reservationProduct = await ReservationProductModel.findByPk(
+      productId,
+      {
+        include: [{
+          model: HistoryModel,
+          as: 'history',
+        }]
+      }
+    )
+
+    expect(reservationProduct.currentQuantity).toBe(reserveQuantity - releaseQuantity)
+    expect(reservationProduct.history).toHaveLength(1)
+    expect(reservationProduct.history[0].quantity).toBe(releaseQuantity)
+    expect(reservationProduct.history[0].type).toBe('release')
+  })
+
+  test('should release specified individual product', async () => {
+    const productId = reservation.individualProducts[0].id
+
+    await reservationDomain.release({
+      id: reservation.id,
+      individualProducts: [{
+        id: productId,
+      }]
+    })
+
+    const reservationProduct = await ReservationIndividualProductModel.findByPk(
+      productId,
+      {
+        include: [{
+          model: IndividualHistoryModel,
+          as: 'history',
+        }]
+      }
+    )
+
+    expect(reservationProduct.available).toBe(false)
+    expect(reservationProduct.history).toHaveLength(1)
+    expect(reservationProduct.history[0].type).toBe('release')
   })
 })
 
-describe('return reservation', async () => {
-  let reservation = null
+
+describe('return reservation', () => {
   let reservationData = null
-  let reserveQuantity = 2
+  const reserveQuantity = 10
+  const returnQuantity = 5
+  let reservation = null
 
   beforeAll(async () => {
     reservationData = {
       reservedAt: new Date,
       stockLocationId: stockLocation.id,
       customerId: customer.id,
-      items: [
+      products: [
         {
           quantity: reserveQuantity,
           productId: product.id,
         },
+      ],
+      individualProducts: [
         {
-          quantity: reserveQuantity,
           productId: productSN.id,
         },
-      ]
+      ] 
     }
 
     reservation = await reservationDomain.add(reservationData)
   })
 
-  test('should return items of a reservation', async () => {
-    const itemWithSerialNumber = reservation.items[1]
-    const itemWithoutSerialNumber = reservation.items[0]
+  test('should return specified quantity of a product', async () => {
+    const productId = reservation.products[0].id
 
     await reservationDomain.return({
       id: reservation.id,
-      type: 'return',
-      items: [
-        {
-          id: itemWithSerialNumber.id,
-          quantity: 2,
-          individualProducts: [
-            itemWithSerialNumber.individualProducts[0].reservationItemIndividualProduct.id,
-            itemWithSerialNumber.individualProducts[1].reservationItemIndividualProduct.id
-          ]
-        },
-        {
-          id: itemWithoutSerialNumber.id,
-          quantity: 2,
-        }
-      ]
+      products: [{
+        id: productId,
+        quantity: returnQuantity,
+      }]
     })
+
+    const reservationProduct = await ReservationProductModel.findByPk(
+      productId,
+      {
+        include: [{
+          model: HistoryModel,
+          as: 'history',
+        }]
+      }
+    )
+
+    expect(reservationProduct.currentQuantity).toBe(reserveQuantity - returnQuantity)
+    expect(reservationProduct.history).toHaveLength(1)
+    expect(reservationProduct.history[0].quantity).toBe(returnQuantity)
+    expect(reservationProduct.history[0].type).toBe('return')
+  })
+
+  test('should return specified individual product', async () => {
+    const productId = reservation.individualProducts[0].id
+
+    await reservationDomain.return({
+      id: reservation.id,
+      individualProducts: [{
+        id: productId,
+      }]
+    })
+
+    const reservationProduct = await ReservationIndividualProductModel.findByPk(
+      productId,
+      {
+        include: [{
+          model: IndividualHistoryModel,
+          as: 'history',
+        }]
+      }
+    )
+
+    const individualProduct = await IndividualProductModel.findByPk(
+      reservationProduct.individualProductId
+    )
+
+    expect(individualProduct.available).toBe(true)
   })
 })
-
-
-

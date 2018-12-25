@@ -11,9 +11,6 @@ module.exports = (sequelize) => {
     releasedAt: {
       type: Sequelize.DATE,
     },
-    tecnicoId: {
-      type: Sequelize.STRING,
-    },
     originId: {
       type: Sequelize.STRING,
     },
@@ -30,8 +27,12 @@ module.exports = (sequelize) => {
     Reservation.belongsTo(models.stockLocation)
     Reservation.belongsTo(models.customer)
 
-    Reservation.hasMany(models.reservationItem, {
-      as: 'items',
+    Reservation.hasMany(models.reservationProduct, {
+      as: 'products',
+    })
+
+    Reservation.hasMany(models.reservationIndividualProduct, {
+      as: 'individualProducts',
     })
   }
 
