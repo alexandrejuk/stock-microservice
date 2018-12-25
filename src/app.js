@@ -1,3 +1,4 @@
+require('./helpers/loadenv')
 const Express = require('express')
 const bodyParse = require('body-parser')
 const cors = require('cors')
@@ -8,6 +9,8 @@ const orderRoute = require('./routes/order')
 const stockRoute = require('./routes/stock')
 const stockLocationRoute = require('./routes/stockLocation')
 const reservationRoute = require('./routes/reservation')
+const individualProductsRoute = require('./routes/individualProduct')
+const customerRoute = require('./routes/customer')
 
 const app = Express()
 
@@ -18,10 +21,12 @@ app.use(logger('dev'))
 
 /* routes */
 app.use('/api', productRoute)
+app.use('/api', customerRoute)
 app.use('/api', orderRoute)
 app.use('/api', stockRoute)
 app.use('/api', stockLocationRoute)
 app.use('/api', reservationRoute)
+app.use('/api', individualProductsRoute)
 
 /* error handlers */
 app.use((err, req, res, next) => { //eslint-disable-line

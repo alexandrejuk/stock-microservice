@@ -40,8 +40,6 @@ const dbFlow = async () => {
   // await order.setStocks([])
 
   await order.reload({ include: [{ all: true }] })
-
-  console.log(JSON.stringify(order, null, 2))
 }
 
 dbFlow()

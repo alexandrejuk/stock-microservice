@@ -1,3 +1,4 @@
+require('../src/helpers/loadenv')
 const databaseHelper = require('../src/helpers/database')
 
 const setupJest = async () => {

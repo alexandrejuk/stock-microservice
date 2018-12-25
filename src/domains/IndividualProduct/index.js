@@ -6,7 +6,8 @@ const ProductDomain = require('../Product')
 const orderDomain = new OrderDomain()
 const productDomain = new ProductDomain()
 const IndividualProductModel = database.model('individualProduct')
-
+const ProductModel = database.model('product')
+const StockLocationModel = database.model('stockLocation')
 
 class IndividualProduct {
   async addMany (individualProductData, { transaction } = {}) {
@@ -86,6 +87,56 @@ class IndividualProduct {
 
     return availableIndividualProduct
   }
+
+  async getAll () {
+    return await IndividualProductModel.findAll({
+      include: [
+        { model: StockLocationModel, required: true },
+        { model: ProductModel, required: true },
+      ]
+    })
+  }
+
+  async getById (id, { transaction } = {}) {
+    return await IndividualProductModel.findByPk(id, {
+      include: [
+        StockLocationModel,
+        ProductModel,
+      ],
+    })
+  }
+
+  async makeAvailableById(id, { transaction } = {}) {
+    const individualProduct = await this.getById(id)
+
+    individualProduct.available = true
+    await individualProduct.save({ transaction })
+  }
+
+  async reserveById(id, { transaction } = {}) {
+    const individualProduct = await this.getById(id, { transaction })
+    if(individualProduct.available) {
+      individualProduct.available = false
+
+      await individualProduct.save({ transaction })
+    } else {
+      throw new FieldValidationError([{
+        name: 'available',
+        message: 'This product must be available in order for you to reserve it',
+      }])
+    }
+  }
+
+  async updateById(id, serialNumber) {
+    const individualProductInstance = await this.getById(id)
+    await IndividualProductModel.update(
+      { serialNumber },
+      { where: { id } }
+    )
+
+    return individualProductInstance
+  }
+  
 }
 
 module.exports = IndividualProduct

@@ -8,12 +8,15 @@
     "bluebird": "^3.5.2",
     "body-parser": "^1.18.3",
     "cors": "^2.8.4",
+    "dotenv": "^6.1.0",
     "express": "^4.16.4",
+    "jest-mock-axios": "^2.1.11",
     "morgan": "^1.9.1",
     "pg": "^7.5.0",
     "pg-hstore": "^2.3.2",
     "ramda": "^0.25.0",
-    "sequelize": "^4.41.0"
+    "sequelize": "^4.41.0",
+    "shelljs": "^0.8.3"
   },
   "scripts": {
     "start": "node ./src/app.js",

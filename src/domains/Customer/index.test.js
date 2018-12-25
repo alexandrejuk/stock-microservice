@@ -1,50 +1,90 @@
+const mockGetCustomerByDocumentId = jest.fn()
+jest.mock('../../services/connecta', () => ({
+  getCustomerByDocumentId: mockGetCustomerByDocumentId,
+}))
+
 const CustomerDomain = require('./')
 const mocks = require('../../helpers/mocks')
+const randomGenerator = require('../../helpers/randomDataGenerator')
 
 const customerDomain = new CustomerDomain()
 
-let createdCustomerPF = null
-let createdCustomerPJ = null
-const customerDataPF = mocks.customerData({
-  documents: [mocks.documentData({ type: 'cpf' })],
-  type: 'fisica'
-})
-const customerDataPJ = mocks.customerData({
-  documents: [mocks.documentData()],
-  type: 'juridica'
-})
 
-beforeAll(async () => {
-  createdCustomerPF = await customerDomain.create(customerDataPF)
-  createdCustomerPJ = await customerDomain.create(customerDataPJ)
-})
+test('should create a natural person customer', async () => {
+  const customerDataPF = mocks.customerData({
+    type: 'natural',
+    mainId: mocks.documentData('cpf'),
+    naturalPerson: {
+    }
+  })
 
-test('should create a new customer of type fisica', async () => {
-  expect(createdCustomerPF).toBeTruthy()
-  expect(createdCustomerPF.name).toBe(customerDataPF.name)
-  expect(createdCustomerPF.type).toBe('fisica')
+  const customer = await customerDomain.create(customerDataPF)
 
-  expect(createdCustomerPF.documents).toHaveLength(1)
-  expect(createdCustomerPF.documents[0].type).toBe('cpf')
-  expect(createdCustomerPF.documents[0].value).toBe(String(customerDataPF.documents[0].value))
+  expect(customer).toBeTruthy()
+  expect(customer.name).toBe(customerDataPF.name)
+  expect(customer.type).toBe('natural')
+  expect(customer.active).toBe(true)
+  expect(customer.legalPerson).toBeUndefined()
+
+  expect(customer.naturalPerson).toBeTruthy()
 })
 
-test('should create a new customer of type jurica', async () => {
-  expect(createdCustomerPJ).toBeTruthy()
-  expect(createdCustomerPJ.name).toBe(customerDataPJ.name)
-  expect(createdCustomerPJ.type).toBe('juridica')
+test('should create a legal person customer', async () => {
+  const customerDataPJ = mocks.customerData({
+    mainId: mocks.documentData('cnpj'),
+    type: 'legal',
+    legalPerson: {
+      legalName: randomGenerator(10),
+    }
+  })
 
-  expect(createdCustomerPJ.documents).toHaveLength(1)
-  expect(createdCustomerPJ.documents[0].type).toBe('cnpj')
-  expect(createdCustomerPJ.documents[0].value).toBe(String(customerDataPJ.documents[0].value))
+  const customer = await customerDomain.create(customerDataPJ)
+
+  expect(customer).toBeTruthy()
+  expect(customer.name).toBe(customerDataPJ.name)
+  expect(customer.type).toBe('legal')
+  expect(customer.active).toBe(true)
+
+  expect(customer.legalPerson).toBeTruthy()
+  expect(customer.naturalPerson).toBeUndefined()
+  expect(customer.legalPerson.legalName).toBe(customerDataPJ.legalPerson.legalName.toUpperCase())
 })
 
-test('should get customer by its document number', async () => {
-  const documerNumber = String(customerDataPJ.documents[0].value)
-  const foundCustomer = await customerDomain.getByDocumentNumber(documerNumber)
+
+test('should create a legal person customer', async () => {
+  const customerDataPJ = mocks.customerData({
+    mainId: mocks.documentData('cnpj'),
+    type: 'legal',
+    legalPerson: {
+      legalName: randomGenerator(10),
+    }
+  })
+
+  const customer = await customerDomain.create(customerDataPJ)
+
+  expect(customer).toBeTruthy()
+  expect(customer.name).toBe(customerDataPJ.name)
+  expect(customer.type).toBe('legal')
+  expect(customer.active).toBe(true)
+
+  expect(customer.legalPerson).toBeTruthy()
+  expect(customer.naturalPerson).toBeUndefined()
+  expect(customer.legalPerson.legalName).toBe(customerDataPJ.legalPerson.legalName.toUpperCase())
+})
+
+// describe('getByDocumentNumber', () => {
+//   test('should create a new customer if it does not exist in our database', async () => {
+//     const customer = customerDomain.getByDocumentNumber('423423423')
+
+//     expect(mockGetCustomerByDocumentId).toHaveBeenCalled()
+//   })
+// })
+// test('should get customer by its document number', async () => {
+//   const documerNumber = String(customerDataPJ.documents[0].value)
+//   const foundCustomer = await customerDomain.getByDocumentNumber(documerNumber)
   
-  expect(foundCustomer).toBeTruthy()
-  expect(foundCustomer.name).toBe(customerDataPJ.name)
-  expect(foundCustomer.type).toBe(customerDataPJ.type)
-  expect(createdCustomerPJ.documents[0].value).toBe(documerNumber)
-})
+//   expect(foundCustomer).toBeTruthy()
+//   expect(foundCustomer.name).toBe(customerDataPJ.name)
+//   expect(foundCustomer.type).toBe(customerDataPJ.type)
+//   expect(createdCustomerPJ.documents[0].value).toBe(documerNumber)
+// })

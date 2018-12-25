@@ -1,31 +1,24 @@
 const database = require('../../db')
 const Sequelize = require('sequelize')
+const connectaService = require('../../services/connecta')
+const customerFormatter = require('./formatter')
 
 const Customer = database.model('customer')
-const Document = database.model('document')
+const NaturalPerson = database.model('naturalPerson')
+const LegalPerson = database.model('legalPerson')
 
 class CustomerDomain {
   async create (customerData, options = {}) {
     const { transaction } = options
-    const { documents } = customerData
-    let foundCustomer = null
-  
-    for (let i = 0; i < documents.length && !foundCustomer; i++) {
-      const document = documents[i]
-      const foundCustomer = this.getByDocumentNumber(document.value)
-      if (foundCustomer) {
-        break
-      }
-    }
-
-    if(foundCustomer){
-      return foundCustomer
-    }
+    const { type } = customerData
+    
+    const include = (type === 'natural') ?
+      [NaturalPerson] : [LegalPerson]
       
     const customer = await Customer.create(
       customerData,
       {
-        include: [Document],
+        include,
         transaction,
       }
     )
@@ -33,17 +26,34 @@ class CustomerDomain {
     return customer
   }
 
-  async getByDocumentNumber(documentNumber) {
-    const customer = await Customer.findOne({
-      include: [{
-        model: Document,
-        where: {
-          value: documentNumber,
-        }
-      }]
-    })
+  async getById(id) {
+    const customer = await Customer.findByPk(id)
 
     return customer
+  }
+
+  async getByDocumentNumber(documentNumber) {
+    const customer = await Customer.findOne({
+      where: {
+        mainId: documentNumber,
+      },
+      include: [NaturalPerson, LegalPerson]
+    })
+
+    if (customer) {
+      return customer
+    }
+  
+    /**
+     * if customer is not found in database, try connecta instead,
+     * then, convert it and save in the database
+     */
+    const foundCustomerInConnecta = await connectaService.getCustomerByDocumentId(documentNumber)
+    const formattedCustomer = customerFormatter(foundCustomerInConnecta)
+
+    const createdCustomer = await this.create(formattedCustomer)
+
+    return createdCustomer
   }
 }
 

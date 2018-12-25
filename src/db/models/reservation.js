@@ -11,11 +11,8 @@ module.exports = (sequelize) => {
     releasedAt: {
       type: Sequelize.DATE,
     },
-    tecnicoId: {
-      type: Sequelize.STRING,
-    },
     originId: {
-      type: Sequelize.INTEGER,
+      type: Sequelize.STRING,
     },
     originType: {
       type: Sequelize.STRING,
@@ -27,7 +24,16 @@ module.exports = (sequelize) => {
   })
 
   Reservation.associate = (models) => {
-    Reservation.hasMany(models.productReservation)
+    Reservation.belongsTo(models.stockLocation)
+    Reservation.belongsTo(models.customer)
+
+    Reservation.hasMany(models.reservationProduct, {
+      as: 'products',
+    })
+
+    Reservation.hasMany(models.reservationIndividualProduct, {
+      as: 'individualProducts',
+    })
   }
 
   return Reservation
