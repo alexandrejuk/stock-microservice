@@ -286,3 +286,65 @@ describe('return reservation', () => {
     expect(individualProduct.available).toBe(true)
   })
 })
+
+describe('getById', () => {
+  let reservationData = null
+  const reserveQuantity = 10
+  const returnQuantity = 5
+  let reservation = null
+
+  beforeAll(async () => {
+    reservationData = {
+      reservedAt: new Date,
+      stockLocationId: stockLocation.id,
+      customerId: customer.id,
+      products: [
+        {
+          quantity: reserveQuantity,
+          productId: product.id,
+        },
+      ],
+      individualProducts: [
+        {
+          productId: productSN.id,
+        },
+      ] 
+    }
+
+    const createdReservation = await reservationDomain.add(reservationData)
+
+    reservation = await reservationDomain.getById(createdReservation.id)
+  })
+
+  test('should have customer', () => {
+    expect(reservation.customer).toBeTruthy()
+    expect(reservation.customer.mainId).toBe(cnpj)
+  })
+
+  describe('products', () => {
+    test('should have 1 product', () => {
+      expect(reservation.products).toHaveLength(1)
+    })
+
+    test('property history should be present', () => {
+      expect(reservation.products[0].history).toBeTruthy()
+      expect(reservation.products[0].history).toHaveLength(0)
+    })
+  })
+
+  describe('individual products', () => {
+    test('should have 1 product', () => {
+      expect(reservation.individualProducts).toHaveLength(1)
+    })
+
+    test('should have loaded individualProduct', () => {
+      expect(reservation.individualProducts[0].individualProduct).toHaveProperty('serialNumber')
+      expect(reservation.individualProducts[0].individualProduct).toHaveProperty('id')
+      expect(reservation.individualProducts[0].individualProduct).toHaveProperty('available')
+    })
+
+    test('should have history', () => {
+      expect(reservation.individualProducts[0].history).toBeTruthy()
+    })
+  })
+})

@@ -363,6 +363,16 @@ class Reservation {
     }, { transaction })
   }
 
+  async getById(id, { transaction } = {}) {
+    return ReservationModel.findByPk(
+      id,
+      {
+        transaction,
+        include,
+      }
+    )
+  }
+
 }
   
 

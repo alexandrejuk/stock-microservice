@@ -16,6 +16,23 @@ const add = async (req, res, next) => {
   }
 }
 
+const get = async (req, res, next) => {
+  let transaction = await database.transaction()
+  try {
+    const response = await reservationDomain.getById(
+      req.params.id,
+      { transaction }
+    )
+
+    await transaction.commit()
+    res.send(response)
+  } catch (error) {
+    await transaction.rollback()
+    next(error)
+  }
+}
+
 module.exports = {
   add,
+  get,
 }
