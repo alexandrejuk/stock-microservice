@@ -32,7 +32,18 @@ const get = async (req, res, next) => {
   }
 }
 
+const getAll = async (req, res, next) => {
+  try {
+    const reservations  = await reservationDomain.getAll()
+
+    res.json(reservations)
+  } catch(error) {
+    next(error)
+  }
+}
+
 module.exports = {
   add,
   get,
+  getAll,
 }
