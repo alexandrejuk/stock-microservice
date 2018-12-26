@@ -65,6 +65,31 @@ class Reservation {
     })
   }
 
+  async getAllProducts(employeeId) {
+    const products = await ReservationProduct
+      .findAll({
+        include: [
+          {
+            model: ReservationModel,
+            include: [CustomerModel],
+            where: {
+              employeeId
+            }
+          },
+          {
+            model: ProductModel,
+            attributes: ['name', 'brand', 'sku','category']
+          },
+          {
+            model: HistoryModel,
+            as: 'history'
+          }
+        ]
+      })
+
+    return products
+  }
+
   async getById(id) {
     return await ReservationModel.findByPk(id, { include });
   }
@@ -90,13 +115,13 @@ class Reservation {
       )
     }
 
-    for(const reservationProduct of reservationData.individualProducts) {
-      await this.addIndividualProduct(
-        reservationProduct,
-        createdReservation,
-        options,
-      )
-    }
+    // for(const reservationProduct of reservationData.individualProducts) {
+    //   await this.addIndividualProduct(
+    //     reservationProduct,
+    //     createdReservation,
+    //     options,
+    //   )
+    // }
 
 
     createdReservation.setCustomer(customer)
@@ -187,9 +212,9 @@ class Reservation {
       await this.releaseProduct(product, reservation.id, { transaction })
     }
 
-    for(const product of (releaseData.individualProducts || [])){
-      await this.releaseIndividualProduct(product, reservation.id, { transaction })
-    }
+    // for(const product of (releaseData.individualProducts || [])){
+    //   await this.releaseIndividualProduct(product, reservation.id, { transaction })
+    // }
 
     await reservation.reload({
       transaction,
@@ -270,14 +295,14 @@ class Reservation {
       )
     }
 
-    for(const product of (returnData.individualProducts || [])){
-      await this.returnIndividualProduct(
-        product,
-        reservation.id,
-        reservation.stockLocationId,
-        { transaction }
-      )
-    }
+    // for(const product of (returnData.individualProducts || [])){
+    //   await this.returnIndividualProduct(
+    //     product,
+    //     reservation.id,
+    //     reservation.stockLocationId,
+    //     { transaction }
+    //   )
+    // }
 
     await reservation.reload({
       transaction,

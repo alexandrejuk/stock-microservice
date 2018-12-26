@@ -21,7 +21,13 @@ const getCustomerByDocumentId = async (document_id) => {
   return response.data
 }
 
+const getListCallsByDocumentId = async (documentId) => {
+  const { data } = await connectaApi.get(`atendimentos?cliente.cnpj_cpf=${documentId}&estado=associado&skip=0&limit=0`)
+  return data
+}
+
 
 module.exports = {
-    getCustomerByDocumentId,
+  getCustomerByDocumentId,
+  getListCallsByDocumentId
 }

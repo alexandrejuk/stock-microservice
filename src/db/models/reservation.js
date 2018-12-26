@@ -14,6 +14,9 @@ module.exports = (sequelize) => {
     originId: {
       type: Sequelize.STRING,
     },
+    employeeId: {
+      type: Sequelize.STRING,
+    },
     originType: {
       type: Sequelize.STRING,
     },
