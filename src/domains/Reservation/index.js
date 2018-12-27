@@ -1,4 +1,5 @@
 const database = require('../../db')
+const Sequelize = require('sequelize')
 const ProductDomain = require('../Product')
 const StockDomain = require('../Stock')
 const CustomerDomain = require('../Customer')
@@ -57,7 +58,7 @@ class Reservation {
             model: ReservationModel,
             include: [CustomerModel],
             where: {
-              employeeId
+              // employeeId
             }
           },
           {
@@ -109,6 +110,58 @@ class Reservation {
     })
 
     return createdReservation
+  }
+
+  async deleteHistory(historyId, { transaction} = {}) {
+    const history = await HistoryModel.findByPk(historyId, { transaction })
+
+    if(history.type === 'cancel'){
+      throw new Error('this history cannot be deleted')
+    }
+
+    if(history.deletedAt){
+      throw new Error('this history cannot be deleted again')
+    }
+
+    const { type, quantity } = history
+    const { reservationProductId } = history
+    const productReservation = await ReservationProduct
+    .findByPk(
+      reservationProductId,
+      {
+        transaction,
+        include: [ReservationModel]
+      })
+
+    const newQuantity = productReservation.currentQuantity + quantity
+
+    if(newQuantity > productReservation.quantity){
+      throw new Error('quantity exceeds the reserved quantity')
+    }
+
+    productReservation.currentQuantity = newQuantity
+    await productReservation.save({ transaction })
+  
+    await history.destroy({ transaction })
+    await HistoryModel.create({
+      quantity,
+      reservationProductId,
+      type: 'cancel'
+    }, { transaction })
+
+    if(type === 'return') {
+      if(productReservation.individualProductId) {
+        await individualProductDomain.reserveById(productReservation.individualProductId, { transaction })
+      }
+      
+      await stockDomain.add({
+        stockLocationId: productReservation.reservation.stockLocationId,
+        productId: productReservation.productId,
+        quantity: quantity * -1,
+        originId: productReservation.reservation.id,
+        originType: 'reservation'
+      }, { transaction })
+    }
   }
 
   async addProduct (productData, reservation, options) {
