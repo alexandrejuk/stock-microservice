@@ -53,6 +53,9 @@ class Reservation {
   async getAllProducts(employeeId) {
     const products = await ReservationProduct
       .findAll({
+        order: [
+          ['id', 'ASC']
+        ],
         include: [
           {
             model: ReservationModel,
@@ -143,7 +146,7 @@ class Reservation {
     await productReservation.save({ transaction })
   
     await history.destroy({ transaction })
-    await HistoryModel.create({
+    const createdHistory = await HistoryModel.create({
       quantity,
       reservationProductId,
       type: 'cancel'
@@ -162,6 +165,8 @@ class Reservation {
         originType: 'reservation'
       }, { transaction })
     }
+
+    return createdHistory
   }
 
   async addProduct (productData, reservation, options) {

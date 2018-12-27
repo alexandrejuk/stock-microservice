@@ -324,3 +324,73 @@ describe('getById', () => {
     })
   })
 })
+
+describe('deleteHistory', () => {
+  let reservationData = null
+  let reservation = null
+
+  beforeAll(async () => {
+    reservationData = {
+      reservedAt: new Date,
+      stockLocationId: stockLocation.id,
+      customerId: customer.id,
+      products: [
+        {
+          productId: productSN.id,
+        },
+        {
+          productId: productSN.id,
+        },
+      ],
+    }
+
+    reservation = await reservationDomain.add(reservationData)
+  })
+
+  test('should cancel the release of a given item',  async () => {
+    const reservationProductId = reservation.products[0].id
+
+    await reservationDomain.release({
+      id: reservation.id,
+      products: [
+        {
+          id: reservationProductId,
+        }
+      ]
+    })
+
+    const historyToCancel = await HistoryModel.findOne({ where: {
+      reservationProductId
+    }})
+
+    const cancelHistory = await reservationDomain.deleteHistory(historyToCancel.id)
+    
+
+    expect(cancelHistory.type).toBe('cancel')
+    expect(cancelHistory.quantity).toBe(historyToCancel.quantity)
+    expect(cancelHistory.reservationProductId).toBe(reservationProductId)
+  })
+
+  test('should cancel the return of a given item',  async () => {
+    const reservationProductId = reservation.products[1].id
+
+    await reservationDomain.return({
+      id: reservation.id,
+      products: [
+        {
+          id: reservationProductId,
+        }
+      ]
+    })
+
+    const historyToCancel = await HistoryModel.findOne({ where: {
+      reservationProductId
+    }})
+
+    const cancelHistory = await reservationDomain.deleteHistory(historyToCancel.id)
+
+    expect(cancelHistory.type).toBe('cancel')
+    expect(cancelHistory.quantity).toBe(historyToCancel.quantity)
+    expect(cancelHistory.reservationProductId).toBe(reservationProductId)
+  })
+})
