@@ -127,6 +127,23 @@ class IndividualProduct {
     }
   }
 
+  async reserveByProductIdAndSerialNumber(productId, serialNumber, stockLocationId, { transaction } = {}) {
+    const individualProduct = await IndividualProductModel.findOne({
+      where: {
+        productId,
+        stockLocationId,
+        serialNumber,
+      },
+      transaction,
+    })
+
+    if(!individualProduct){
+      throw new Error('Product has not being found!')
+    }
+    
+    await this.reserveById(individualProduct.id, { transaction })
+  }
+
   async updateById(id, serialNumber) {
     const individualProductInstance = await this.getById(id)
     await IndividualProductModel.update(

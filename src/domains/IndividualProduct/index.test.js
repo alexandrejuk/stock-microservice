@@ -1,4 +1,3 @@
-const expect = require('expect');
 const mock = require('../../helpers/mocks')
 const ProductDomain = require('../Product')
 const StockLocationDomain = require('../StockLocation')
@@ -10,6 +9,8 @@ const randomDataGenerator = require('../../helpers/randomDataGenerator')
 const productDomain = new ProductDomain()
 const individualProductDomain = new IndividualProductDomain()
 const stockLocationDomain = new StockLocationDomain()
+
+const IndividualProductModel = database.model('individualProduct')
 
 let stockLocationId = null
 beforeAll(async () => {
@@ -117,6 +118,72 @@ describe('add many with incorrect data', () => {
   })
 })
 
+describe('reserveByProductIdAndSerialNumber', () => {
+  let product = null
+  let stockLocation = null
+  let serialNumber1 = null
+  let serialNumber2 = null
+
+  beforeEach(async () => {
+    product = await productDomain.add(
+      mock.product({ hasSerialNumber: true })
+    )
+
+    serialNumber1 = randomDataGenerator()
+    serialNumber2 = randomDataGenerator()
+
+    stockLocation = await stockLocationDomain.add({
+      name: 'fake location'
+    })
+
+    individualProductData = {
+      productId: product.id,
+      originId: null,
+      originType: null,
+      stockLocationId: stockLocation.id,
+      serialNumbers: [
+        serialNumber1,
+        serialNumber2,
+      ]
+    }
+
+    await individualProductDomain.addMany(individualProductData)
+  })
+
+  test('should reserve it if given productId, serialNumber and stockLocationId is right', async () => {
+    await individualProductDomain.reserveByProductIdAndSerialNumber(
+      product.id,
+      serialNumber1,
+      stockLocation.id,
+    )
+
+    const individualProduct = await IndividualProductModel.findOne({
+      where: {
+        productId: product.id,
+        serialNumber: serialNumber1,
+      }
+    })
+
+    expect(individualProduct.available).toBe(false)
+  })
+
+  test('should throw error if serial number has already been reserved', async () => {
+    await individualProductDomain.reserveByProductIdAndSerialNumber(
+      product.id,
+      serialNumber2,
+      stockLocation.id,
+    )
+
+    await expect(
+      individualProductDomain.reserveByProductIdAndSerialNumber(
+        product.id,
+        serialNumber2,
+        stockLocation.id,
+      )
+    ).rejects.toThrow()
+  })
+})
+
 describe('getProductAvailableByProductId', () => {
   test('should throw if there is no available product with for a given product id', async () => {
     await expect(individualProductDomain.getAvailableIndividualProductAndReserve(20020, stockLocationId))
@@ -148,7 +215,6 @@ describe('getProductAvailableByProductId', () => {
   })
 
   test('should remain available in case transaction is rollbacked', async () => {
-    const IndividualProductModel = database.model('individualProduct')
     const product = await productDomain.add(
       mock.product({ hasSerialNumber: true })
     )
