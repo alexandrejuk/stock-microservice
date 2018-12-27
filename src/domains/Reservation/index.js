@@ -7,14 +7,12 @@ const { FieldValidationError } = require('../../errors')
 
 const ReservationModel = database.model('reservation')
 const ReservationProduct = database.model('reservationProduct')
-const ReservationIndividualProduct = database.model('reservationIndividualProduct')
+const HistoryModel = database.model('reservationProductHistory')
 
 const IndividualProductModel = database.model('individualProduct')
 const ProductModel = database.model('product')
 const StockLocationModel = database.model('stockLocation')
 const CustomerModel = database.model('customer')
-const HistoryModel = database.model('reservationProductHistory')
-const IndividualHistoryModel = database.model('reservationIndividualProductHistory')
 
 const productDomain = new ProductDomain()
 const individualProductDomain = new IndividualProductDomain()
@@ -38,22 +36,8 @@ const include = [
       {
         model: HistoryModel,
         as: 'history'
-      }
-    ],
-  },
-  {
-    model: ReservationIndividualProduct,
-    as: 'individualProducts',
-    include: [
-      {
-        model: ProductModel,
-        attributes: ['name', 'brand', 'sku','category']
       },
-      IndividualProductModel,
-      {
-        model: IndividualHistoryModel,
-        as: 'history'
-      }
+      IndividualProductModel
     ],
   },
 ]
@@ -83,7 +67,8 @@ class Reservation {
           {
             model: HistoryModel,
             as: 'history'
-          }
+          },
+          IndividualProductModel,
         ]
       })
 
@@ -115,15 +100,6 @@ class Reservation {
       )
     }
 
-    // for(const reservationProduct of reservationData.individualProducts) {
-    //   await this.addIndividualProduct(
-    //     reservationProduct,
-    //     createdReservation,
-    //     options,
-    //   )
-    // }
-
-
     createdReservation.setCustomer(customer)
     await createdReservation.save()
     
@@ -136,69 +112,54 @@ class Reservation {
   }
 
   async addProduct (productData, reservation, options) {
-    const { productId, quantity } = productData
+    const { productId } = productData
 
     const product = await productDomain.getById(productId)
-
+    
     if (!product) {
       throw new Error('Product has not being found')
     }
 
-    if (product.hasSerialNumber) {
-      throw new Error('Product in reservation must not have serial numbers')
-    }
+    const quantity = product.hasSerialNumber ? 1 : productData.quantity
 
-    await ReservationProduct.create({
-      productId: product.id,
-      quantity: quantity,
-      currentQuantity: quantity,
-      reservationId: reservation.id,
-    }, options)
+    if (!product.hasSerialNumber) {
+
+      await ReservationProduct.create({
+        productId: product.id,
+        quantity: quantity,
+        currentQuantity: quantity,
+        reservationId: reservation.id,
+      }, options)
+  
+    } else {
+      const { productId, serialNumber } = productData
+      const individualProduct = Boolean(serialNumber) ?
+        await individualProductDomain.reserveByProductIdAndSerialNumber(
+          productId,
+          serialNumber,
+          reservation.stockLocationId,
+          options,
+        )
+        : await individualProductDomain.getAvailableIndividualProductAndReserve(
+          productId,
+          reservation.stockLocationId,
+          options,
+        )
+
+      await ReservationProduct.create({
+        productId: product.id,
+        quantity: quantity,
+        currentQuantity: quantity,
+        reservationId: reservation.id,
+        individualProductId: individualProduct.id
+      }, options)
+
+    }
 
     await stockDomain.add({
       stockLocationId: reservation.stockLocationId,
       productId: product.id,
       quantity: quantity * -1,
-      originId: reservation.id,
-      originType: 'reservation'
-    }, options)
-  }
-
-  async addIndividualProduct(individualProductData, reservation, options) {
-    const { individualProductId, productId } = individualProductData
-
-    let individualProduct = null
-
-    if (individualProductId) {
-      individualProduct = await individualProductDomain.getById(individualProductId)
-
-      if (!individualProduct) {
-        throw new Error('IndividualProduct has not being found')
-      }
-  
-      if (individualProduct.stockLocationId !== reservation.stockLocationId) {
-        throw new Error('Stock location for individual product must be the same as the reservation')
-      }
-
-      await individualProductDomain.reserveById(individualProductId, options)
-    } else {
-      individualProduct = await individualProductDomain.getAvailableIndividualProductAndReserve(
-        productId,
-        reservation.stockLocationId,
-        options,
-      )
-    }
-
-    await ReservationIndividualProduct.create({
-      individualProductId: individualProduct.id,
-      productId,
-      reservationId: reservation.id,
-    }, options)
-
-    await stockDomain.add({
-      stockLocationId: reservation.stockLocationId,
-      productId: productId,
-      quantity: -1,
       originId: reservation.id,
       originType: 'reservation'
     }, options)
@@ -211,10 +172,6 @@ class Reservation {
     for(const product of (releaseData.products || [])){
       await this.releaseProduct(product, reservation.id, { transaction })
     }
-
-    // for(const product of (releaseData.individualProducts || [])){
-    //   await this.releaseIndividualProduct(product, reservation.id, { transaction })
-    // }
 
     await reservation.reload({
       transaction,
@@ -235,7 +192,9 @@ class Reservation {
       throw new Error('this product does not belong to the given reservation id')
     }
 
-    const newQuantity = product.currentQuantity - productData.quantity
+    const quantity = Boolean(product.individualProductId) ? 1 : productData.quantity
+    const newQuantity = product.currentQuantity - quantity
+    
     if (newQuantity < 0 ){
       throw new Error('Current quantity is not enough for this release')
     }
@@ -248,37 +207,8 @@ class Reservation {
 
     await HistoryModel.create({
       type: 'release',
-      quantity: productData.quantity,
+      quantity: quantity,
       reservationProductId: product.id,
-    }, { transaction })
-  }
-
-  async releaseIndividualProduct(individualProductData, reservationId, { transaction } = options) {
-    const individualProduct = await ReservationIndividualProduct
-      .findByPk(
-        individualProductData.id,
-        {
-          include: [IndividualProductModel]
-        }
-      )
-
-    if(!individualProduct) {
-      throw new Error('this reservation product does not exist')
-    }
-
-    if(!individualProduct.available) {
-      throw new Error('this product has already being released of returned')
-    }
-
-    individualProduct.available = false
-  
-    await individualProduct.save({
-      transaction,
-    })
-
-    await IndividualHistoryModel.create({
-      type: 'release',
-      reservationIndividualProductId: individualProduct.id,
     }, { transaction })
   }
 
@@ -294,15 +224,6 @@ class Reservation {
         { transaction }
       )
     }
-
-    // for(const product of (returnData.individualProducts || [])){
-    //   await this.returnIndividualProduct(
-    //     product,
-    //     reservation.id,
-    //     reservation.stockLocationId,
-    //     { transaction }
-    //   )
-    // }
 
     await reservation.reload({
       transaction,
@@ -323,7 +244,9 @@ class Reservation {
       throw new Error('this product does not belong to the given reservation id')
     }
 
-    const newQuantity = product.currentQuantity - productData.quantity
+    const quantity = Boolean(product.individualProductId) ? 1 : productData.quantity
+    const newQuantity = product.currentQuantity - quantity
+
     if (newQuantity < 0 ){
       throw new Error('Current quantity is not enough for this release')
     }
@@ -334,9 +257,13 @@ class Reservation {
       transaction,
     })
 
+    if (product.individualProductId){
+      individualProductDomain.makeAvailableById(product.individualProductId)
+    }
+
     await HistoryModel.create({
       type: 'return',
-      quantity: productData.quantity,
+      quantity: quantity,
       reservationProductId: product.id,
     }, { transaction })
 
@@ -344,45 +271,6 @@ class Reservation {
       stockLocationId,
       productId: product.productId,
       quantity: productData.quantity,
-      originId: reservationId,
-      originType: 'reservation'
-    }, { transaction })
-  }
-
-  async returnIndividualProduct(individualProductData, reservationId, stockLocationId, { transaction } = options) {
-    const individualProduct = await ReservationIndividualProduct
-      .findByPk(
-        individualProductData.id,
-      )
-
-    if(!individualProduct) {
-      throw new Error('this reservation product does not exist')
-    }
-
-    if(!individualProduct.available) {
-      throw new Error('this product has already being released of returned')
-    }
-
-    individualProduct.available = false
-  
-    await individualProduct.save({
-      transaction,
-    })
-
-    await IndividualHistoryModel.create({
-      type: 'return',
-      reservationIndividualProductId: individualProduct.id,
-    }, { transaction })
-
-    await individualProductDomain.makeAvailableById(
-      individualProduct.individualProductId,
-      { transaction }
-    )
-
-    await stockDomain.add({
-      stockLocationId,
-      productId: individualProduct.productId,
-      quantity: 1,
       originId: reservationId,
       originType: 'reservation'
     }, { transaction })

@@ -33,10 +33,6 @@ module.exports = (sequelize) => {
     Reservation.hasMany(models.reservationProduct, {
       as: 'products',
     })
-
-    Reservation.hasMany(models.reservationIndividualProduct, {
-      as: 'individualProducts',
-    })
   }
 
   return Reservation

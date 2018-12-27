@@ -142,6 +142,8 @@ class IndividualProduct {
     }
     
     await this.reserveById(individualProduct.id, { transaction })
+
+    return individualProduct
   }
 
   async updateById(id, serialNumber) {
