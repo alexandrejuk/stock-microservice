@@ -61,7 +61,7 @@ class Reservation {
             model: ReservationModel,
             include: [CustomerModel],
             where: {
-              // employeeId
+              employeeId
             }
           },
           {

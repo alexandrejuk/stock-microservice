@@ -26,8 +26,14 @@ const getListCallsByDocumentId = async (documentId) => {
   return data
 }
 
+const getListTechnical = async (documentId) => {
+  const { data } = await connectaApi.get(`funcionarios?login.tipo=tecnico`)
+  return data
+}
+
 
 module.exports = {
   getCustomerByDocumentId,
-  getListCallsByDocumentId
+  getListCallsByDocumentId,
+  getListTechnical,
 }
