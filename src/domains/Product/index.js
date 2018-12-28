@@ -24,7 +24,7 @@ class Product {
   }
 
   async updateById(id, product) {
-    const productInstance = await this.getById(id)
+    const productInstance = await ProductModel.findByPk(id)
     await productInstance.update(product)
 
     return productInstance
