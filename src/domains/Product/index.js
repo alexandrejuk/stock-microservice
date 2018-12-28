@@ -1,5 +1,8 @@
 const db = require('../../db')
+const Sequelize = require('sequelize')
 const ProductModel = db.model('product')
+const StockModel = db.model('stock')
+const StockLocationModel = db.model('stockLocation')
 
 class Product {
   
@@ -8,7 +11,12 @@ class Product {
   }
 
   async getById(id) {
-    return await ProductModel.findByPk(id)
+    const product = await ProductModel.findByPk(id, { raw: true })
+
+    return {
+      ...product,
+      quantityEntries: await this.getProductQuantity(id)
+    }
   }
 
   async getAll() {
@@ -22,6 +30,23 @@ class Product {
     return productInstance
   }
 
+  async getProductQuantity (id) {
+    const stockEntries =  await StockModel.findAll({
+      where: {
+        productId: id
+      },
+      attributes: ['productId', 'stockLocationId', Sequelize.fn('sum', Sequelize.col('quantity'))],
+      include: [
+        {
+          model: StockLocationModel,
+          attributes: ['name']
+        },
+      ],
+      group: ['productId', 'stockLocationId', 'stockLocation.id'],
+    })
+
+    return stockEntries
+  }
 }
 
 module.exports = Product
