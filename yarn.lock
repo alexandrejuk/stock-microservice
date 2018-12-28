@@ -3576,6 +3576,13 @@ pgpass@1.x:
   dependencies:
     split "^1.0.0"
 
+photon-authorization-middleware@^1.0.2:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/photon-authorization-middleware/-/photon-authorization-middleware-1.0.2.tgz#9f64651661166e540017f30456331d4f2b48974f"
+  integrity sha1-n2RlFmEWblQAF/MEVjMdTytIl08=
+  dependencies:
+    axios "^0.18.0"
+
 pify@^2.0.0:
   version "2.3.0"
   resolved "https://registry.yarnpkg.com/pify/-/pify-2.3.0.tgz#ed141a6ac043a849ea588498e7dca8b15330e90c"

@@ -3,6 +3,7 @@ const Express = require('express')
 const bodyParse = require('body-parser')
 const cors = require('cors')
 const logger = require('morgan')
+const authorizationMiddleware = require('photon-authorization-middleware')
 const errorFormatter = require('./helpers/errorFormatter')
 const productRoute = require('./routes/product')
 const orderRoute = require('./routes/order')
@@ -21,6 +22,8 @@ const app = Express()
 app.use(bodyParse.json())
 app.use(cors())
 app.use(logger('dev'))
+
+app.use('/api', authorizationMiddleware(process.env.NODE_ENV !== 'production', 'http://165.227.78.113', 3000))
 
 /* routes */
 app.use('/api', productRoute)
