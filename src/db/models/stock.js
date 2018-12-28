@@ -2,7 +2,10 @@ const Sequelize = require('sequelize')
 
 module.exports = (sequelize) => {
   const Stock = sequelize.define('stock', {
-    quantity: Sequelize.INTEGER,
+    quantity: {
+      type: Sequelize.INTEGER,
+      allowNull: false,
+    },
     originId: Sequelize.INTEGER,
     originType: Sequelize.STRING,
     description: Sequelize.STRING,

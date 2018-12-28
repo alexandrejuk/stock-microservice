@@ -328,7 +328,7 @@ class Reservation {
     await stockDomain.add({
       stockLocationId,
       productId: product.productId,
-      quantity: productData.quantity,
+      quantity: quantity,
       originId: reservationId,
       originType: 'reservation'
     }, { transaction })
