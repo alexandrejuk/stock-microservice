@@ -35,7 +35,7 @@ class Product {
       where: {
         productId: id
       },
-      attributes: ['productId', 'stockLocationId', Sequelize.fn('sum', Sequelize.col('quantity'))],
+      attributes: ['productId', 'stockLocationId', [Sequelize.fn('Sum', Sequelize.col('quantity')), 'total']],
       include: [
         {
           model: StockLocationModel,
@@ -47,6 +47,44 @@ class Product {
 
     return stockEntries
   }
+
+  async getProductsQuantityStockLocationId (stockLocationId) {
+    const stockEntries =  await StockModel.findAll({
+      where: {
+        stockLocationId,
+      },
+      attributes: ['productId', 'stockLocationId', [Sequelize.fn('Sum', Sequelize.col('quantity')), 'total']],
+      include: [
+        {
+          model: StockLocationModel,
+          attributes: ['name']
+        },
+        {
+          model: ProductModel,
+          attributes: ['name', 'brand']
+        },
+      ],
+      group: ['productId', 'product.id','stockLocationId', 'stockLocation.id'],
+    })
+
+    return stockEntries
+  }
+
+  async getProductsQuantityStock () {
+    const stockEntries =  await StockModel.findAll({
+      attributes: ['productId', [Sequelize.fn('Sum', Sequelize.col('quantity')), 'total']],
+      include: [
+        {
+          model: ProductModel,
+          attributes: ['name', 'brand']
+        },
+      ],
+      group: ['productId', 'product.id'],
+    })
+
+    return stockEntries
+  }
+
 }
 
 module.exports = Product
