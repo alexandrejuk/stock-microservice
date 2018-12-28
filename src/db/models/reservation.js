@@ -14,6 +14,9 @@ module.exports = (sequelize) => {
     originId: {
       type: Sequelize.STRING,
     },
+    employeeId: {
+      type: Sequelize.STRING,
+    },
     originType: {
       type: Sequelize.STRING,
     },
@@ -29,10 +32,6 @@ module.exports = (sequelize) => {
 
     Reservation.hasMany(models.reservationProduct, {
       as: 'products',
-    })
-
-    Reservation.hasMany(models.reservationIndividualProduct, {
-      as: 'individualProducts',
     })
   }
 

@@ -16,8 +16,6 @@ const orderProduct = require('./orderProduct')
 const reservation = require('./reservation')
 const reservationProduct = require('./reservationProduct')
 const reservationProductHistory = require('./reservationProductHistory')
-const reservationIndividualProduct = require('./reservationIndividualProduct')
-const reservationIndividualProductHistory = require('./reservationIndividualProductHistory')
 
 module.exports = [
   Stock,
@@ -32,6 +30,4 @@ module.exports = [
   reservation,
   reservationProduct,
   reservationProductHistory,
-  reservationIndividualProduct,
-  reservationIndividualProductHistory,
 ]

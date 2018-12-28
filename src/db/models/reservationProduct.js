@@ -19,6 +19,8 @@ module.exports = (sequelize) => {
       },
     })
 
+    ReservationProduct.belongsTo(models.individualProduct)
+
     ReservationProduct.belongsTo(models.product, {
       foreignKey: {
         allowNull: false,

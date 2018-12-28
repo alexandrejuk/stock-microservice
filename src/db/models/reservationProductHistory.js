@@ -12,6 +12,11 @@ module.exports = (sequelize) => {
     },
   })
 
+  ReservationProductHistory.associate = (models) => {
+
+    ReservationProductHistory.belongsTo(models.reservationProduct)
+  }
+
   return ReservationProductHistory
 }
 
