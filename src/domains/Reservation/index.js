@@ -214,6 +214,12 @@ class Reservation {
 
     }
 
+    const availableQuantity = await stockDomain.getProductQuantity(productId, reservation.stockLocationId)
+    
+    if (availableQuantity < quantity) {
+      throw Error('The available quantity is not enough!!!!!!! mother fucker')
+    }
+
     await stockDomain.add({
       stockLocationId: reservation.stockLocationId,
       productId: product.id,
