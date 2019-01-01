@@ -46,7 +46,7 @@ jobs:
           name: deployment
           command: |
             ssh-keyscan $SSH_HOST >> ~/.ssh/known_hosts
-            ssh $SSH_USER@$SSH_HOST "cd $PROJECT_PATH && git checkout $CIRCLE_BRANCH && git pull --rebase origin $CIRCLE_BRANCH && export NODE_ENV && sh ./scripts/deploy.sh"
+            ssh $SSH_USER@$SSH_HOST "cd $PROJECT_PATH && git checkout $CIRCLE_BRANCH && git pull --rebase origin $CIRCLE_BRANCH && export NODE_ENV=production && sh ./scripts/deploy.sh"
   prod_deploy:
     docker: 
       - image: circleci/node:8
@@ -59,7 +59,7 @@ jobs:
           name: deployment
           command: |
             ssh-keyscan $SSH_PROD_HOST >> ~/.ssh/known_hosts
-            ssh $SSH_PROD_USER@$SSH_PROD_HOST "cd $PROJECT_PATH && git checkout $CIRCLE_BRANCH && git pull --rebase origin $CIRCLE_BRANCH && export NODE_ENV && sh ./scripts/deploy.sh"
+            ssh $SSH_PROD_USER@$SSH_PROD_HOST "cd $PROJECT_PATH && git checkout $CIRCLE_BRANCH && git pull --rebase origin $CIRCLE_BRANCH && export NODE_ENV=production && sh ./scripts/deploy.sh"
 workflows:
   version: 2
   test_and_build:
