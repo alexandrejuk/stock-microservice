@@ -1,7 +1,7 @@
 const Sequelize = require('sequelize')
 const models = require('./models')
 const sequelize = new Sequelize({
-  host: process.env.DATABASE_HOST || 'localhost',
+  host: process.env.DB_HOST || 'localhost',
   password: process.env.DB_PASSWORD,
   username: process.env.DB_USERNAME,
   database: process.env.DB_DATABASE,
