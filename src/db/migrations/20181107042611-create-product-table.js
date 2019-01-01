@@ -3,8 +3,8 @@
 module.exports = {
   up: (queryInterface, Sequelize) => queryInterface.createTable('product', {
     id: {
-      type: Sequelize.INTEGER,
-      allowNull: false,
+      type: Sequelize.UUID,
+      defaultValue: Sequelize.UUIDV4,
       primaryKey: true,
     },
     name: {
@@ -49,5 +49,5 @@ module.exports = {
       allowNull: true,
     },
   }),
-  down: queryInterface => queryInterface.dropTable('company'),
+  down: queryInterface => queryInterface.dropTable('product'),
 }

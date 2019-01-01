@@ -2,7 +2,7 @@
 
 module.exports = {
   up: (queryInterface, Sequelize) => queryInterface
-    .createTable('stock', {
+    .createTable('reservationProductHistory', {
       id: {
         type: Sequelize.UUID,
         defaultValue: Sequelize.UUIDV4,
@@ -10,11 +10,12 @@ module.exports = {
       },
       quantity: {
         type: Sequelize.INTEGER,
-        allowNull: false,
+        allowNull: true,
       },
-      originId: Sequelize.UUID,
-      originType: Sequelize.STRING,
-      description: Sequelize.STRING,
+      type: {
+        type: Sequelize.ENUM(['release', 'return', 'cancel']),
+        allowNull: true,
+      },
       createdAt: {
         type: Sequelize.DATE,
         allowNull: false,
@@ -27,24 +28,15 @@ module.exports = {
         type: Sequelize.DATE,
         allowNull: true,
       },
-      productId: {
+      reservationProductId: {
         type: Sequelize.UUID,
         references: {
-          model: 'product',
+          model: 'reservationProduct',
           key: 'id'
         },
         onUpdate: 'cascade',
         onDelete: 'cascade'
       },
-      stockLocationId: {
-        type: Sequelize.UUID,
-        references: {
-          model: 'stockLocation',
-          key: 'id'
-        },
-        onUpdate: 'cascade',
-        onDelete: 'cascade'
-      }
     }),
-  down: queryInterface => queryInterface.dropTable('stock'),
+  down: queryInterface => queryInterface.dropTable('reservationProductHistory'),
 }

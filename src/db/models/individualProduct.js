@@ -31,12 +31,12 @@ module.exports = (sequelize) => {
 
   IndividualProduct.associate = (models) => {
     models.individualProduct.belongsTo(models.product, {
-      constraints: false,
+      foreignKey: {
+        allowNull: false,
+      },
     })
 
-    models.individualProduct.belongsTo(models.customer, {
-      constraints: false,
-    })
+    models.individualProduct.belongsTo(models.customer)
 
     models.individualProduct.belongsTo(models.stockLocation, {
       foreignKey: {

@@ -2,19 +2,20 @@
 
 module.exports = {
   up: (queryInterface, Sequelize) => queryInterface
-    .createTable('stock', {
+    .createTable('legalPerson', {
       id: {
         type: Sequelize.UUID,
         defaultValue: Sequelize.UUIDV4,
         primaryKey: true,
       },
-      quantity: {
-        type: Sequelize.INTEGER,
+      legalName: {
+        type: Sequelize.STRING,
         allowNull: false,
       },
-      originId: Sequelize.UUID,
-      originType: Sequelize.STRING,
-      description: Sequelize.STRING,
+      inscricaoEstadual: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
       createdAt: {
         type: Sequelize.DATE,
         allowNull: false,
@@ -27,24 +28,15 @@ module.exports = {
         type: Sequelize.DATE,
         allowNull: true,
       },
-      productId: {
+      customerId: {
         type: Sequelize.UUID,
         references: {
-          model: 'product',
+          model: 'customer',
           key: 'id'
         },
         onUpdate: 'cascade',
         onDelete: 'cascade'
       },
-      stockLocationId: {
-        type: Sequelize.UUID,
-        references: {
-          model: 'stockLocation',
-          key: 'id'
-        },
-        onUpdate: 'cascade',
-        onDelete: 'cascade'
-      }
     }),
-  down: queryInterface => queryInterface.dropTable('stock'),
+  down: queryInterface => queryInterface.dropTable('legalPerson'),
 }
