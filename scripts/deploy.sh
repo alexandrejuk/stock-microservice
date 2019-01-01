@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #running migrations
-yarn migrate
+yarn migrate:prod
 
 # Start building process
 echo "***** stating build process! *****"
