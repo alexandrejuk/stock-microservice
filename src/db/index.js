@@ -1,7 +1,10 @@
 const Sequelize = require('sequelize')
 const models = require('./models')
-const sequelize = new Sequelize(process.env.DB_DATABASE, process.env.DB_USERNAME, process.env.DB_PASSWORD, {
+const sequelize = new Sequelize({
   host: process.env.DATABASE_HOST || 'localhost',
+  password: process.env.DB_PASSWORD,
+  username: process.env.DB_USERNAME,
+  database: process.env.DB_DATABASE,
   dialect: 'postgres',
   operatorsAliases: false,
   logging: false,

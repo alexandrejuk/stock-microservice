@@ -23,8 +23,9 @@
   "scripts": {
     "start": "node ./src/app.js",
     "start:dev": "nodemon ./src/app.js",
-    "test": "jest",
-    "migrate": "sequelize db:migrate --env production"
+    "test": "yarn migrate:test && jest",
+    "migrate:prod": "sequelize db:migrate --env production",
+    "migrate:test": "sequelize db:migrate --env test"
   },
   "devDependencies": {
     "jest": "^23.6.0",

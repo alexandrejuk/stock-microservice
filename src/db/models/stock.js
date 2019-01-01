@@ -2,6 +2,11 @@ const Sequelize = require('sequelize')
 
 module.exports = (sequelize) => {
   const Stock = sequelize.define('stock', {
+    id: {
+      type: Sequelize.UUID,
+      defaultValue: Sequelize.UUIDV4,
+      primaryKey: true,
+    },
     quantity: {
       type: Sequelize.INTEGER,
       allowNull: false,

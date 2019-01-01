@@ -55,6 +55,10 @@ module.exports = {
         onUpdate: 'cascade',
         onDelete: 'cascade'
       },
-    }),
+    })
+    .then(() => queryInterface.addConstraint('individualProduct', ['productId', 'serialNumber'], {
+      type: 'unique',
+      name: 'product_serial'
+    })),
   down: queryInterface => queryInterface.dropTable('individualProduct'),
 }

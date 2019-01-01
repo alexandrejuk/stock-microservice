@@ -21,6 +21,7 @@ module.exports = (sequelize) => {
     mainId: {
       type: Sequelize.STRING,
       allowNull: false,
+      unique: true,
     },
     type: {
       type: Sequelize.ENUM(['legal', 'natural']),
