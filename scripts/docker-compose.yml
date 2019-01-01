@@ -1,0 +1,13 @@
+version: '2.1'
+services:
+  base:
+    build:
+      context: ..
+      dockerfile: ./dockerfile
+  server:
+      extends: base
+      command: yarn start
+      environment:
+        - NODE_ENV=production
+      ports:
+        - 3003:3003
