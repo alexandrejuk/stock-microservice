@@ -34,7 +34,7 @@ jobs:
       - run:
           name: test
           command: yarn test
-  state_deploy:
+  stage_deploy:
     docker: 
       - image: circleci/node:8
     working_directory: ~/server
@@ -47,12 +47,31 @@ jobs:
           command: |
             ssh-keyscan $SSH_HOST >> ~/.ssh/known_hosts
             ssh $SSH_USER@$SSH_HOST "cd $PROJECT_PATH && git checkout $CIRCLE_BRANCH && git pull --rebase origin $CIRCLE_BRANCH && sh ./scripts/deploy.sh"
+  prod_deploy:
+    docker: 
+      - image: circleci/node:8
+    working_directory: ~/server
+    steps:
+      - add_ssh_keys:
+          fingerprints:
+            - "b5:90:b1:92:ae:05:73:ae:c1:9f:ba:1e:eb:f2:cc:2a"
+      - run:
+          name: deployment
+          command: |
+            ssh-keyscan $SSH_PROD_HOST >> ~/.ssh/known_hosts
+            ssh $SSH_PROD_USER@$SSH_PROD_HOST "cd $PROJECT_PATH && git checkout $CIRCLE_BRANCH && git pull --rebase origin $CIRCLE_BRANCH && sh ./scripts/deploy.sh"
 workflows:
   version: 2
   test_and_build:
     jobs:
       - test
-      - state_deploy:
+      - stage_deploy:
+          requires:
+          - test
+          filters:
+            branches:
+              only: master
+      - prod_deploy:
           requires:
           - test
           filters:

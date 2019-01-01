@@ -17,17 +17,17 @@
     "ramda": "^0.25.0",
     "sequelize": "^4.41.0",
     "shelljs": "^0.8.3",
-    "uuid": "^3.3.2"
+    "uuid": "^3.3.2",
+    "sequelize-cli": "^5.3.0"
   },
   "scripts": {
     "start": "node ./src/app.js",
     "start:dev": "nodemon ./src/app.js",
     "test": "jest",
-    "migrate": "sequelize db:migrate"
+    "migrate": "sequelize db:migrate --env production"
   },
   "devDependencies": {
     "jest": "^23.6.0",
-    "nodemon": "^1.18.4",
-    "sequelize-cli": "^5.3.0"
+    "nodemon": "^1.18.4"
   }
 }
