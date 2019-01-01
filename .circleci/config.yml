@@ -71,9 +71,13 @@ workflows:
           filters:
             branches:
               only: master
+      - hold: 
+          type: approval
+          requires:
+           - stage_deploy
       - prod_deploy:
           requires:
-          - test
+          - hold
           filters:
             branches:
               only: master
