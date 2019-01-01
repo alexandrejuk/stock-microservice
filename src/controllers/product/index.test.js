@@ -4,7 +4,8 @@ const Ramda = require('ramda')
 const omitDBProperties = Ramda.omit([
   'id',
   'updatedAt',
-  'createdAt'
+  'createdAt',
+  'deletedAt'
 ])
 
 describe('post /products', () => {

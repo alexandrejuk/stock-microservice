@@ -2,19 +2,27 @@
 
 module.exports = {
   up: (queryInterface, Sequelize) => queryInterface
-    .createTable('stock', {
+    .createTable('individualProduct', {
       id: {
         type: Sequelize.UUID,
         defaultValue: Sequelize.UUIDV4,
         primaryKey: true,
       },
-      quantity: {
-        type: Sequelize.INTEGER,
+      serialNumber: {
+        type: Sequelize.STRING,
+        unique: 'product_serial',
         allowNull: false,
       },
-      originId: Sequelize.UUID,
-      originType: Sequelize.STRING,
-      description: Sequelize.STRING,
+      originId: {
+        type: Sequelize.UUID,
+      },
+      originType: {
+        type: Sequelize.STRING,
+      },
+      available: {
+        type: Sequelize.BOOLEAN,
+        default: true,
+      },
       createdAt: {
         type: Sequelize.DATE,
         allowNull: false,
@@ -27,15 +35,6 @@ module.exports = {
         type: Sequelize.DATE,
         allowNull: true,
       },
-      productId: {
-        type: Sequelize.UUID,
-        references: {
-          model: 'product',
-          key: 'id'
-        },
-        onUpdate: 'cascade',
-        onDelete: 'cascade'
-      },
       stockLocationId: {
         type: Sequelize.UUID,
         references: {
@@ -44,7 +43,18 @@ module.exports = {
         },
         onUpdate: 'cascade',
         onDelete: 'cascade'
-      }
+      },
+      productId: {
+        unique: 'product_serial',
+        allowNull: false,
+        type: Sequelize.UUID,
+        references: {
+          model: 'product',
+          key: 'id'
+        },
+        onUpdate: 'cascade',
+        onDelete: 'cascade'
+      },
     }),
-  down: queryInterface => queryInterface.dropTable('stock'),
+  down: queryInterface => queryInterface.dropTable('individualProduct'),
 }

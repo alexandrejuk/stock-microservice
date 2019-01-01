@@ -2,19 +2,34 @@
 
 module.exports = {
   up: (queryInterface, Sequelize) => queryInterface
-    .createTable('stock', {
+    .createTable('reservation', {
       id: {
         type: Sequelize.UUID,
         defaultValue: Sequelize.UUIDV4,
         primaryKey: true,
       },
-      quantity: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
+      description: {
+        type: Sequelize.STRING,
       },
-      originId: Sequelize.UUID,
-      originType: Sequelize.STRING,
-      description: Sequelize.STRING,
+      reservedAt: {
+        type: Sequelize.DATE,
+      },
+      releasedAt: {
+        type: Sequelize.DATE,
+      },
+      originId: {
+        type: Sequelize.UUID,
+      },
+      employeeId: {
+        type: Sequelize.STRING,
+      },
+      originType: {
+        type: Sequelize.STRING,
+      },
+      status: {
+        type: Sequelize.ENUM(['reservado', 'liberado']),
+        defaultValue: 'reservado',
+      },
       createdAt: {
         type: Sequelize.DATE,
         allowNull: false,
@@ -27,10 +42,10 @@ module.exports = {
         type: Sequelize.DATE,
         allowNull: true,
       },
-      productId: {
+      customerId: {
         type: Sequelize.UUID,
         references: {
-          model: 'product',
+          model: 'customer',
           key: 'id'
         },
         onUpdate: 'cascade',
@@ -46,5 +61,5 @@ module.exports = {
         onDelete: 'cascade'
       }
     }),
-  down: queryInterface => queryInterface.dropTable('stock'),
+  down: queryInterface => queryInterface.dropTable('reservation'),
 }

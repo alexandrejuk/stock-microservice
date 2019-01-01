@@ -13,6 +13,7 @@ const individualProductsRoute = require('./routes/individualProduct')
 const customerRoute = require('./routes/customer')
 const callRoute = require('./routes/call')
 const technicalRoute = require('./routes/technical')
+const databaseHelper = require('./helpers/database')
 
 const app = Express()
 
@@ -44,6 +45,13 @@ app.use((err, req, res, next) => { //eslint-disable-line
   res.json(formattedError)
 })
 
-app.listen(3003, () => console.log('Running...'))
+const port = process.env.PORT || 3003
+databaseHelper
+  .isDatabaseConnected()
+  .then(() => {
+    app.listen(port, () => console.log(`Running on ${port}`))
+  })
+  .catch(error => console.log(error))
+
 
 module.exports = app

@@ -12,7 +12,8 @@ const sequelize = new Sequelize('postgres', 'postgres', 'postgres', {
     idle: 10000
   },
   define: {
-    freezeTableName: true
+    freezeTableName: true,
+    paranoid: true,
   }
 })
 
