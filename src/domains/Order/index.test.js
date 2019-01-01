@@ -230,7 +230,7 @@ describe('cancell', () => {
   })
 
   test('should thorw error if order is not found', async () => {
-    await expect(orderDomain.cancell('323232'))
+    await expect(orderDomain.cancell('c2a93508-8fba-4ebe-b24d-d9a896d4c7b8'))
       .rejects
       .toThrowError(FieldValidationError)
   })

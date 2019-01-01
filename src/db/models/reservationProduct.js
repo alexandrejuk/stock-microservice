@@ -2,6 +2,11 @@ const Sequelize = require('sequelize')
 
 module.exports = (sequelize) => {
   const ReservationProduct = sequelize.define('reservationProduct', {
+    id: {
+      type: Sequelize.UUID,
+      defaultValue: Sequelize.UUIDV4,
+      primaryKey: true,
+    },
     quantity: {
       type: Sequelize.INTEGER,
       allowNull: false,
@@ -13,19 +18,11 @@ module.exports = (sequelize) => {
   })
 
   ReservationProduct.associate = (models) => {
-    ReservationProduct.belongsTo(models.reservation, {
-      foreignKey: {
-        allowNull: false,
-      },
-    })
+    ReservationProduct.belongsTo(models.reservation)
 
     ReservationProduct.belongsTo(models.individualProduct)
 
-    ReservationProduct.belongsTo(models.product, {
-      foreignKey: {
-        allowNull: false,
-      },
-    })
+    ReservationProduct.belongsTo(models.product)
 
     ReservationProduct.hasMany(models.reservationProductHistory, {
       as: 'history',

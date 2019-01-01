@@ -6,7 +6,7 @@ module.exports = (sequelize) => {
       type: Sequelize.INTEGER,
       allowNull: false,
     },
-    originId: Sequelize.INTEGER,
+    originId: Sequelize.UUID,
     originType: Sequelize.STRING,
     description: Sequelize.STRING,
   })

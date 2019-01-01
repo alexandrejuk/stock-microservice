@@ -29,7 +29,7 @@ test('Should find a stock location by its id', async () => {
 })
 
 test('getById should return null if id does not exists ', async () => {
-  const randomId = 32323432
+  const randomId = 'c2a93508-8fba-4ebe-b24d-d9a896d4c7b8'
   const foundStockLocation = await stockLocationDomain.getById(randomId)
 
   expect(foundStockLocation).toBe(null)

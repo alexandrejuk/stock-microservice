@@ -179,6 +179,11 @@ class Reservation {
     }
 
     const quantity = product.hasSerialNumber ? 1 : productData.quantity
+    const availableQuantity = await stockDomain.getProductQuantity(productId, reservation.stockLocationId)
+    
+    if (availableQuantity < quantity) {
+      throw Error('The available quantity is not enough!!!!!!! mother fucker')
+    }
 
     if (!product.hasSerialNumber) {
 

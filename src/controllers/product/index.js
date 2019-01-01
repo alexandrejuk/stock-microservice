@@ -12,7 +12,6 @@ const add = async (req, res, next) => {
   }
 }
 
-
 const get = async (req, res, next) => {
   try {
     const products = await productDomain.getAll()
@@ -26,6 +25,24 @@ const getById = async (req, res, next) => {
   try {
     const { id } = req.params
     const product = await productDomain.getById(id)
+    res.status(200).json(product)
+  } catch (error) {
+    next(error)
+  }
+}
+
+const getStockProducts = async (req, res, next) => {
+  try {
+    const product = await productDomain.getProductsQuantityStock()
+    res.status(200).json(product)
+  } catch (error) {
+    next(error)
+  }
+}
+
+const getStockProductsStockLocationId = async (req, res, next) => {
+  try {
+    const product = await productDomain.getProductsQuantityStockLocationId(req.params.stockLocationId)
     res.status(200).json(product)
   } catch (error) {
     next(error)
@@ -47,5 +64,7 @@ module.exports = {
   add,
   get,
   getById,
-  update
+  update,
+  getStockProducts,
+  getStockProductsStockLocationId
 }
