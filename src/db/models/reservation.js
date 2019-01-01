@@ -17,7 +17,7 @@ module.exports = (sequelize) => {
       type: Sequelize.DATE,
     },
     originId: {
-      type: Sequelize.UUID,
+      type: Sequelize.STRING,
     },
     employeeId: {
       type: Sequelize.STRING,
