@@ -2,26 +2,31 @@ const Sequelize = require('sequelize')
 
 module.exports = (sequelize) => {
   const Product = sequelize.define('product', {
+    id: {
+      type: Sequelize.UUID,
+      defaultValue: Sequelize.UUIDV4,
+      primaryKey: true,
+    },
     name: {
       type: Sequelize.STRING,
       set(val) {
         this.setDataValue('name', val.toUpperCase());
       },
-      // allowNull: false,
+      allowNull: false,
     },
     brand: {
       type: Sequelize.STRING,
       set(val) {
         this.setDataValue('brand', val.toUpperCase());
       },
-      // allowNull: false,
+      allowNull: false,
     },
     category: {
       type: Sequelize.STRING,
       set(val) {
         this.setDataValue('category', val.toUpperCase());
       },
-      // allowNull: false,
+      allowNull: false,
     },
     sku: {
       type: Sequelize.STRING,

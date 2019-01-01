@@ -2,16 +2,23 @@ const Sequelize = require('sequelize')
 
 module.exports = (sequelize) => {
   const IndividualProduct = sequelize.define('individualProduct', {
+    id: {
+      type: Sequelize.UUID,
+      defaultValue: Sequelize.UUIDV4,
+      primaryKey: true,
+    },
     serialNumber: {
       type: Sequelize.STRING,
       unique: 'product_serial',
+      allowNull: false,
     },
     productId: {
-      type: Sequelize.INTEGER,
+      type: Sequelize.UUID,
       unique: 'product_serial',
+      allowNull: false,
     },
     originId: {
-      type: Sequelize.INTEGER,
+      type: Sequelize.UUID,
     },
     originType: {
       type: Sequelize.STRING,

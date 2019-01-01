@@ -186,7 +186,8 @@ describe('reserveByProductIdAndSerialNumber', () => {
 
 describe('getProductAvailableByProductId', () => {
   test('should throw if there is no available product with for a given product id', async () => {
-    await expect(individualProductDomain.getAvailableIndividualProductAndReserve(20020, stockLocationId))
+    await expect(individualProductDomain
+        .getAvailableIndividualProductAndReserve('c2a93508-8fba-4ebe-b24d-d9a896d4c7b8', stockLocationId))
       .rejects.toThrowError(FieldValidationError)
   })
 

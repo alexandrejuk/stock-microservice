@@ -2,6 +2,11 @@ const Sequelize = require('sequelize')
 
 module.exports = (sequelize) => {
   const Reservation = sequelize.define('reservation', {
+    id: {
+      type: Sequelize.UUID,
+      defaultValue: Sequelize.UUIDV4,
+      primaryKey: true,
+    },
     description: {
       type: Sequelize.STRING,
     },
@@ -12,7 +17,7 @@ module.exports = (sequelize) => {
       type: Sequelize.DATE,
     },
     originId: {
-      type: Sequelize.STRING,
+      type: Sequelize.UUID,
     },
     employeeId: {
       type: Sequelize.STRING,

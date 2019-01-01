@@ -2,6 +2,11 @@ const Sequelize = require('sequelize')
 
 module.exports = (sequelize) => {
   const Order = sequelize.define('order', {
+    id: {
+      type: Sequelize.UUID,
+      defaultValue: Sequelize.UUIDV4,
+      primaryKey: true,
+    },
     description: {
       type: Sequelize.STRING,
       set(val) {
