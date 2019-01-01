@@ -1,4 +1,3 @@
-const expect = require('expect');
 const Order = require('./')
 const mock = require('../../helpers/mocks')
 const ProductDomain = require('../Product')
@@ -6,6 +5,7 @@ const StockDomain = require('../Stock')
 const StockLocationDomain = require('../StockLocation')
 const { FieldValidationError } = require('../../errors')
 const database = require('../../db')
+const randomDataGenerator = require('../../helpers/randomDataGenerator')
 
 const OrderProductModel = database.model('orderProduct')
 const OrderModel = database.model('order')
@@ -182,6 +182,7 @@ describe('cancell', () => {
   let stockLocationId = null
   let orderData = null
   let products = []
+  let cancelledOrder = null
   
   beforeEach(async () => {
     const stockLocation = await stockLocationDomain.add(mock.stockLocation())
@@ -212,21 +213,18 @@ describe('cancell', () => {
     })
 
     createdOrder = await orderDomain.add(orderData)
+    cancelledOrder = await orderDomain.cancell(createdOrder.id)
   })
 
   test('should return cancelled order if everything is okay', async () => {
-    const cancelledOrder = await orderDomain.cancell(createdOrder.id)
-
     expect(cancelledOrder.id).toBe(createdOrder.id)
     expect(cancelledOrder.status).toBe('CANCELLED')
   })
 
   test('should thorw error if order has a status diffent of REGISTERED', async () => {
-    await orderDomain.cancell(createdOrder.id)
-
     await expect(orderDomain.cancell(createdOrder.id))
       .rejects
-      .toThrowError(FieldValidationError)
+      .toThrow()
   })
 
   test('should thorw error if order is not found', async () => {
@@ -235,13 +233,85 @@ describe('cancell', () => {
       .toThrowError(FieldValidationError)
   })
 
-  test('each order product should have its quantity equals 0 after the cancellation', async () => {
-    await orderDomain.cancell(createdOrder.id)
-    
+  test('each order product should have its quantity equals 0 after the cancellation', async () => {    
     for (const product of products) {
       const quantity = await stockDomain.getProductQuantity(product.id, stockLocationId)
 
       expect(quantity).toBe(0)
+    }
+  })
+})
+
+describe('addMahy  with correct individual product data', async () => {
+  let createdIndividualProducts = null
+  let stockLocationId = null
+  let serialNumbers = null
+  let productWithSerialNumber = null
+  order = null
+
+  beforeAll(async () => {
+    const stockLocation = await stockLocationDomain.add(mock.stockLocation())
+
+    productWithSerialNumber = await productDomain.add(
+      mock.product({ hasSerialNumber: true })
+    )
+
+    stockLocationId = stockLocation.id
+
+    const orderData = mock.orderData({
+      stockLocationId: stockLocationId,
+      orderProducts: [{
+        productId: productWithSerialNumber.id,
+        quantity: 100,
+      }]
+    })
+    
+    order = await orderDomain.add(orderData)
+
+    serialNumbers = [
+      randomDataGenerator(),
+      randomDataGenerator(),
+      randomDataGenerator(),
+      randomDataGenerator(),
+      randomDataGenerator(),
+      randomDataGenerator(),
+    ]
+
+    createdIndividualProducts = await orderDomain
+      .addIndividualProducts(
+        order.id,
+        order.orderProducts[0].id,
+        serialNumbers,
+      )
+  })
+
+
+  it('should add all serialNumbers as individual products', () => {
+    expect(createdIndividualProducts.length).toBe(serialNumbers.length)
+  })
+
+  it('all serial numbers add should have the belong to the given productId', () => {
+    for(const createdIndividualProduct of createdIndividualProducts){
+      expect(createdIndividualProduct.productId).toBe(productWithSerialNumber.id)
+    }
+  })
+
+  it('all individual products should have default available equals to true', () => {
+    for(const createdIndividualProduct of createdIndividualProducts){
+      expect(createdIndividualProduct.available).toBe(true)
+    }
+  })
+
+  it('all individual products should the specific stockLocationId', () => {
+    for(const createdIndividualProduct of createdIndividualProducts){
+      expect(createdIndividualProduct.stockLocationId).toBe(stockLocationId)
+    }
+  })
+
+  it('default originId and originType should be null if not specified', () => {
+    for(const createdIndividualProduct of createdIndividualProducts){
+      expect(createdIndividualProduct.originId).toBe(order.id)
+      expect(createdIndividualProduct.originType).toBe('order')
     }
   })
 })

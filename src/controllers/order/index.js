@@ -1,4 +1,5 @@
 const OrderDomain = require('../../domains/Order')
+const database = require('../../db')
 const orderDomain = new OrderDomain()
 
 const add = async (req, res, next) => {
@@ -41,10 +42,32 @@ const updateById = async (req, res, next) => {
   }
 }
 
+const addSerialNumbers = async (req, res, next) => {
+  const transaction = await database.transaction()
+  try {
+    const { orderId, orderProductId } = req.params
+    const serialNumbers = req.body
+
+    const inidividualProducts = await orderDomain.addIndividualProducts(
+      orderId,
+      orderProductId,
+      serialNumbers,
+      { transaction }
+    )
+    
+    await transaction.commit()
+    res.status(200).json(inidividualProducts)
+  } catch (error) {
+    await transaction.rollback()
+    next(error)
+  }
+}
+
 
 module.exports = {
   add,
   get,
   getById,
   updateById,
+  addSerialNumbers,
 }

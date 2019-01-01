@@ -26,13 +26,13 @@ class Stock {
 
   async getProductQuantity(productId, stockLocationId = null) {
     const where = stockLocationId ? { productId, stockLocationId } : { productId }
-
+    
     const productQuantity = await StockModel.sum(
       'quantity',{
         where
       })
     
-    return productQuantity || 0
+    return isNaN(productQuantity) ? 0 : productQuantity
   }
 
   async getAll() {
