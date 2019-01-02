@@ -15,6 +15,7 @@ const customerRoute = require('./routes/customer')
 const callRoute = require('./routes/call')
 const technicalRoute = require('./routes/technical')
 const databaseHelper = require('./helpers/database')
+const rolesMiddleware = require('./middleware/roles')
 
 const app = Express()
 
@@ -23,7 +24,8 @@ app.use(bodyParse.json())
 app.use(cors())
 app.use(logger('dev'))
 
-app.use('/api', authorizationMiddleware(process.env.NODE_ENV !== 'production', 'http://165.227.78.113', 3000))
+app.use('/api', authorizationMiddleware(process.env.NODE_ENV !== 'production', '165.227.78.113', 3000))
+app.use('/api', rolesMiddleware(['all']))
 
 /* routes */
 app.use('/api', productRoute)
