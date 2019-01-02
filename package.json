@@ -14,6 +14,7 @@
     "morgan": "^1.9.1",
     "pg": "^7.5.0",
     "pg-hstore": "^2.3.2",
+    "photon-authorization-middleware": "^1.0.2",
     "ramda": "^0.25.0",
     "sequelize": "^4.41.0",
     "shelljs": "^0.8.3",
