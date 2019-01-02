@@ -1,11 +1,13 @@
 const expect = require('expect');
 const StockLocation = require('./')
-const databaseHelper = require('../../helpers/database')
+const mock = require('../../helpers/mocks')
 
 const stockLocationDomain = new StockLocation()
-const stockLocationMock = { name: 'amazon' }
 
-
+let stockLocationMock = null
+beforeEach(() => {
+  stockLocationMock = mock.stockLocation()
+})
 
 test('Should be a stockLocation instance', () => {
   const stockLocationDomain = new StockLocation()

@@ -14,9 +14,7 @@ const IndividualProductModel = database.model('individualProduct')
 
 let stockLocationId = null
 beforeAll(async () => {
-  const createdStockLocation = await stockLocationDomain.add({
-    name: 'fake location'
-  })
+  const createdStockLocation = await stockLocationDomain.add(mock.stockLocation())
 
   stockLocationId = createdStockLocation.id
 })
@@ -35,9 +33,7 @@ describe('reserveByProductIdAndSerialNumber', () => {
     serialNumber1 = randomDataGenerator()
     serialNumber2 = randomDataGenerator()
 
-    stockLocation = await stockLocationDomain.add({
-      name: 'fake location'
-    })
+    stockLocation = await stockLocationDomain.add(mock.stockLocation())
 
     const serialNumbers = [
       serialNumber1,
