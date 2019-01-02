@@ -10,6 +10,7 @@ module.exports = {
     name: {
       type: Sequelize.STRING,
       allowNull: false,
+      unique: true,
     },
     createdAt: {
       type: Sequelize.DATE,
@@ -40,7 +41,7 @@ module.exports = {
           updatedAt: new Date(),
         },
         {
-          name: 'REALPONTO',
+          name: 'PONTOREAL',
           id: uuid(),
           createdAt: new Date(),
           updatedAt: new Date(),
