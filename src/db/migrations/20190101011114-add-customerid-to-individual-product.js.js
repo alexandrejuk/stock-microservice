@@ -10,7 +10,7 @@ module.exports = {
       },
       allowNull: true,
       onUpdate: 'cascade',
-      onDelete: 'NO ACTION'
+      onDelete: 'restrict'
     }),
   down: queryInterface => queryInterface.removeColumn('individualProduct', 'customerId'),
 }

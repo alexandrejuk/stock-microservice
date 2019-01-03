@@ -42,7 +42,7 @@ module.exports = {
           key: 'id'
         },
         onUpdate: 'cascade',
-        onDelete: 'cascade'
+        onDelete: 'restrict'
       },
       productId: {
         unique: 'product_serial',
@@ -53,7 +53,7 @@ module.exports = {
           key: 'id'
         },
         onUpdate: 'cascade',
-        onDelete: 'cascade'
+        onDelete: 'restrict'
       },
     })
     .then(() => queryInterface.addConstraint('individualProduct', ['productId', 'serialNumber'], {
