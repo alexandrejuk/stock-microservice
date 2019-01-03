@@ -32,7 +32,7 @@ module.exports = {
           key: 'id'
         },
         onUpdate: 'cascade',
-        onDelete: 'cascade'
+        onDelete: 'restrict'
       },
       productId: {
         type: Sequelize.UUID,
@@ -41,7 +41,7 @@ module.exports = {
           key: 'id'
         },
         onUpdate: 'cascade',
-        onDelete: 'cascade'
+        onDelete: 'restrict'
       }
     }),
   down: queryInterface => queryInterface.dropTable('orderProduct'),

@@ -49,7 +49,7 @@ module.exports = {
           key: 'id'
         },
         onUpdate: 'cascade',
-        onDelete: 'cascade'
+        onDelete: 'restrict'
       },
       stockLocationId: {
         type: Sequelize.UUID,
@@ -58,7 +58,7 @@ module.exports = {
           key: 'id'
         },
         onUpdate: 'cascade',
-        onDelete: 'cascade'
+        onDelete: 'restrict'
       }
     }),
   down: queryInterface => queryInterface.dropTable('reservation'),
