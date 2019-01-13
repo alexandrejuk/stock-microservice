@@ -64,10 +64,12 @@ beforeAll(async () => {
 
 describe('add new reservation', async () => {
   test('should register a new reservation', async () => {
+    const trackingCode = "321312312"
     const reservation = await reservationDomain.add({
       reservedAt: new Date,
       stockLocationId: stockLocation.id,
       customerId: customer.id,
+      trackingCode,
       products: [
         {
           quantity: 2,
@@ -81,6 +83,7 @@ describe('add new reservation', async () => {
 
     expect(reservation).toBeTruthy()
     expect(reservation.products).toHaveLength(2)
+    expect(reservation.trackingCode).toBe(trackingCode)
   })
 
   test('should register a new reservation if the specific serialNumber', async () => {
