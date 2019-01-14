@@ -54,7 +54,7 @@ class Reservation {
     const products = await ReservationProduct
       .findAll({
         order: [
-          ['id', 'ASC']
+          ['createdAt', 'DESC']
         ],
         include: [
           {

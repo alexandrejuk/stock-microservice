@@ -10,6 +10,7 @@
     "cors": "^2.8.4",
     "dotenv": "^6.1.0",
     "express": "^4.16.4",
+    "faker": "^4.1.0",
     "jest-mock-axios": "^2.1.11",
     "morgan": "^1.9.1",
     "pg": "^7.5.0",
@@ -17,16 +18,17 @@
     "photon-authorization-middleware": "^1.0.2",
     "ramda": "^0.25.0",
     "sequelize": "^4.41.0",
+    "sequelize-cli": "^5.3.0",
     "shelljs": "^0.8.3",
-    "uuid": "^3.3.2",
-    "sequelize-cli": "^5.3.0"
+    "uuid": "^3.3.2"
   },
   "scripts": {
     "start": "node ./src/app.js",
     "start:dev": "nodemon ./src/app.js",
-    "test": "yarn migrate:test && jest",
+    "test": "yarn migrate:test && jest --detectOpenHandles --forceExit",
     "migrate:prod": "sequelize db:migrate --env production",
-    "migrate:test": "sequelize db:migrate --env test"
+    "migrate:test": "sequelize db:migrate --env test",
+    "migration:create": "./node_modules/.bin/sequelize migration:generate --name"
   },
   "devDependencies": {
     "jest": "^23.6.0",

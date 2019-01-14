@@ -65,6 +65,14 @@ const formatErrorResponse = (err) => {
     return getError(err.statusCode, err.message, baseErrorFormatter)(err)
   }
 
+  if (err instanceof Error && err.message) {
+    return {
+      status: 500,
+      name: 'unknown',
+      message: err.message,
+    }
+  }
+
   return getError()(err)
 }
 

@@ -10,6 +10,9 @@ module.exports = (sequelize) => {
     description: {
       type: Sequelize.STRING,
     },
+    trackingCode: {
+      type: Sequelize.STRING,
+    },
     reservedAt: {
       type: Sequelize.DATE,
     },
