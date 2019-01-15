@@ -86,6 +86,7 @@ class Order {
     }
 
     return await order.reload({
+      transaction,
       include: [{ all: true }]
     })
   }
@@ -100,7 +101,7 @@ class Order {
         quantity: orderProductData.quantity,
         description: 'order resgitration',
         productId: orderProductData.productId,
-      })
+      }, { transaction })
     }
 
     const orderProduct = {
