@@ -7,7 +7,7 @@ const sequelize = new Sequelize({
   database: process.env.DB_DATABASE,
   dialect: 'postgres',
   operatorsAliases: false,
-  logging: console.log,
+  logging: false,
   pool: {
     max: 5,
     min: 2,

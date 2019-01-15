@@ -3,10 +3,14 @@ const database = require('../../db')
 const orderDomain = new OrderDomain()
 
 const add = async (req, res, next) => {
+  const transaction = await database.transaction()
   try {
     const response = await orderDomain.add(req.body)
+
+    await transaction.commit()
     res.send(response)
   } catch (error) {
+    await transaction.rollback()
     next(error)
   }
 }
@@ -31,13 +35,16 @@ const getById = async (req, res, next) => {
 }
 
 const updateById = async (req, res, next) => {
+  const transaction = await database.transaction()
   try {
     const { id } = req.params
     await orderDomain.cancell(id)
     const order = await orderDomain.getById(id)
 
+    await transaction.commit()
     res.status(200).json(order)
   } catch (error) {
+    await transaction.rollback()
     next(error)
   }
 }
