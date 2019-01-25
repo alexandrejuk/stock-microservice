@@ -211,7 +211,7 @@ class Order {
       .count({
         where: {
           originId: id,
-          originType: 'orderProduct',
+          originType: 'order',
           available: false,
         },
       })
@@ -224,7 +224,7 @@ class Order {
       .destroy({
         where: {
           originId: id,
-          originType: 'orderProduct',
+          originType: 'order',
         },
         force: true,
         transaction,
