@@ -20,7 +20,6 @@ const rolesMiddleware = require('./middleware/roles')
 const app = Express()
 
 /* middlewares */
-app.use(bodyParse.urlencoded({ extended: true }))
 app.use(bodyParse.json())
 app.use(cors())
 app.use(logger('dev'))

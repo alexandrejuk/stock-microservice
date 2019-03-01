@@ -12,7 +12,6 @@
     "express": "^4.16.4",
     "faker": "^4.1.0",
     "jest-mock-axios": "^2.1.11",
-    "moment": "^2.24.0",
     "morgan": "^1.9.1",
     "pg": "^7.5.0",
     "pg-hstore": "^2.3.2",
