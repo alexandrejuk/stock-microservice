@@ -14,7 +14,7 @@ const add = async (req, res, next) => {
 
 const get = async (req, res, next) => {
   try {
-    const products = await productDomain.getAll(req.query)
+    const products = await productDomain.getAll()
     res.status(200).json(products)
   } catch (error) {
     next(error)
