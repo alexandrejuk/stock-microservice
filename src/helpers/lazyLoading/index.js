@@ -32,6 +32,7 @@ const calcOffset = (limit, page) => limit * (page - 1)
 const getFilters = R.propOr({}, 'filters')
 
 const getModelAttributes = R.propOr({}, 'attributes')
+const isNested = prop => prop && prop.includes('$')
 const getGlobalFields = R.pathOr([], ['global', 'fields'])
 const getGlobalValue = R.pathOr('', ['global', 'value'])
 
@@ -84,13 +85,40 @@ const getFieldType = (modelAttributes, fieldName) => {
   return R.path([fieldName, 'type'], modelAttributes)
 }
 
-const getGlobalSearch = (modelAttributes, filters) => {
+const getNestedAttributeType = (model, associationName, attributeName) => R.path(
+  [
+    'associations',
+    associationName,
+    'target',
+    'attributes',
+    attributeName,
+    'type',
+  ],
+  model
+)
+
+
+const getGlobalSearch = (model, filters) => {
+  const modelAttributes = getModelAttributes(model)
   const fields = getGlobalFields(filters)
   const value = getGlobalValue(filters)
   
-
   const result = fields.reduce((previous, fieldName) => {
-    const fieldType = getFieldType(modelAttributes, fieldName)
+    let fieldType = null
+
+    if (isNested(fieldName)) {
+      const keyWithoutDolarSign = fieldName.replace(/\$/g, '')
+      const keys = keyWithoutDolarSign.split('.')
+      if (keys.length !== 2) {
+        throw new Error('query not supported')
+      }
+
+      const [associationName, attributeName] = keys
+      fieldType = getNestedAttributeType(model, associationName, attributeName)
+    } else {
+      fieldType = getFieldType(modelAttributes, fieldName)
+    }
+    
     if(!fieldType){
       return previous
     }
@@ -107,12 +135,27 @@ const getGlobalSearch = (modelAttributes, filters) => {
 
 const getSpecificFields = R.pathOr([], ['specific'])
 
-const getSpecificSearch = (modelAttributes, filters) => {
+const getSpecificSearch = (model, filters) => {
+  const modelAttributes = getModelAttributes(model)
   const fields = getSpecificFields(filters)
   
   return Object.keys(fields)
     .reduce((previous, fieldName) => {
-      const fieldType = getFieldType(modelAttributes, fieldName)
+      let fieldType = null
+  
+      if (isNested(fieldName)) {
+        const keyWithoutDolarSign = fieldName.replace(/\$/g, '')
+        const keys = keyWithoutDolarSign.split('.')
+        if (keys.length !== 2) {
+          throw new Error('query not supported')
+        }
+  
+        const [associationName, attributeName] = keys
+        fieldType = getNestedAttributeType(model, associationName, attributeName)
+      } else {
+        fieldType = getFieldType(modelAttributes, fieldName)
+      }
+
       if(!fieldType){
         return previous
       }
@@ -134,10 +177,9 @@ const getLazyLoadingForModel = (model = {}) => (query = {}) => {
   const offset = calcOffset(limit, page)
 
   const filters = getFilters(query)
-  const modelAttributes = getModelAttributes(model)
 
-  const globalSearch = getGlobalSearch(modelAttributes, filters)
-  const specificSearch = getSpecificSearch(modelAttributes, filters)
+  const globalSearch = getGlobalSearch(model, filters)
+  const specificSearch = getSpecificSearch(model, filters)
 
   const where = {
     ...!R.isEmpty(globalSearch) && { [Operators.or]: globalSearch },

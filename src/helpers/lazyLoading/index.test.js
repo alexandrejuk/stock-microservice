@@ -221,3 +221,53 @@ describe('specific search', () => {
   })
 })
 
+describe('nested association', () => {
+  test('should nested field according to its type', () => {
+    const table1 = db.define('table1', {
+      name: Sequelize.STRING,
+      motherName: Sequelize.STRING,
+    })
+
+    const CarTable = db.define('car', {
+      name: Sequelize.STRING,
+    })
+
+    const table3 = db.define('table3', {
+      name: Sequelize.STRING,
+    })
+
+    table1.hasMany(CarTable)
+    table1.hasOne(table3)
+
+    const query = {
+      filters: {
+        global: {
+          fields: ['name', 'motherName', '$cars.name$'],
+          value: 'Mar'
+        },
+        specific: {
+          ['$table3.name$']: 'Mar'
+        }
+      }
+    }
+
+    const { where }  = lazyLoading(table1)(query)
+
+    expect(where).toEqual({
+      [Operators.or]: {
+        name: {
+          [Operators.iRegexp]: 'Mar',
+        },
+        motherName: {
+          [Operators.iRegexp]: 'Mar',
+        },
+        ['$cars.name$']: {
+          [Operators.iRegexp]: 'Mar',
+        }
+      },
+      '$table3.name$': {
+        [Operators.iRegexp]: 'Mar',
+      }
+    })
+  })
+})
