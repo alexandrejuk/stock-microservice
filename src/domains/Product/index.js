@@ -1,8 +1,12 @@
 const db = require('../../db')
+const getLazyLoadingForModel = require('../../helpers/lazyLoading')
 const Sequelize = require('sequelize')
 const ProductModel = db.model('product')
 const StockModel = db.model('stock')
 const StockLocationModel = db.model('stockLocation')
+
+
+const productLazyLoading =  getLazyLoadingForModel(ProductModel)
 
 class Product {
   
@@ -19,8 +23,12 @@ class Product {
     }
   }
 
-  async getAll() {
-    return await ProductModel.findAll({})
+  async getAll(query) {
+    const lazyLoading = productLazyLoading(query)
+
+    return await ProductModel.findAndCountAll({
+      ...lazyLoading,
+    })
   }
 
   async updateById(id, product) {
