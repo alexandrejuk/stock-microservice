@@ -57,7 +57,6 @@ class Reservation {
     return await ReservationModel.findAndCountAll({
       include,
       ...lazyLoading,
-      limit: 1
     })
 
     
