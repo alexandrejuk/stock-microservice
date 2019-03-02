@@ -80,7 +80,7 @@ const updateProductResevation = async (req, res, next) => {
 
 const getAll = async (req, res, next) => {
   try {
-    const reservations  = await reservationDomain.getAll()
+    const reservations  = await reservationDomain.getAll(req.query)
 
     res.json(reservations)
   } catch(error) {
