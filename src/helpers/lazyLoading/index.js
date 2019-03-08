@@ -2,6 +2,7 @@ const Sequelize = require('sequelize')
 const R = require('ramda')
 const Operators = Sequelize.Op
 const moment = require('moment')
+const database = require('../../db')
 
 const MINIMUM_LIMIT = 25
 const MAXIMUM_LIMIT = 100
@@ -29,7 +30,9 @@ const getPage = R.pipe(
 )
 
 const calcOffset = (limit, page) => limit * (page - 1)
-const getFilters = R.propOr({}, 'filters')
+const getFiltersForModel = (modelName, query) => {
+  return R.pathOr({}, ['filters', modelName], query)
+}
 
 const getModelAttributes = R.propOr({}, 'attributes')
 const isNested = prop => prop && prop.includes('$')
@@ -171,26 +174,29 @@ const getSpecificSearch = (model, filters) => {
 
 
 
-const getLazyLoadingForModel = (model = {}) => (query = {}) => {
+const getLazyLoading = (query = {}) => {
   const limit = getLimit(query)
   const page = getPage(query)
   const offset = calcOffset(limit, page)
 
-  const filters = getFilters(query)
+  const getWhereForModel = (modelName) => {
+    const model = database.model(modelName)
+    const filters = getFiltersForModel(modelName, query)
 
-  const globalSearch = getGlobalSearch(model, filters)
-  const specificSearch = getSpecificSearch(model, filters)
-
-  const where = {
-    ...!R.isEmpty(globalSearch) && { [Operators.or]: globalSearch },
-    ...specificSearch,
+    const globalSearch = getGlobalSearch(model, filters)
+    const specificSearch = getSpecificSearch(model, filters)
+  
+    return {
+      ...!R.isEmpty(globalSearch) && { [Operators.or]: globalSearch },
+      ...specificSearch,
+    }
   }
 
   return {
     limit,
     offset,
-    where,
+    getWhereForModel,
   }
 }
 
-module.exports = getLazyLoadingForModel
+module.exports = getLazyLoading
