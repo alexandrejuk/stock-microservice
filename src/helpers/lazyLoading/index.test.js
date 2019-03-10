@@ -2,14 +2,11 @@ const lazyLoading = require('.')
 const Sequelize = require('sequelize')
 const Operators = Sequelize.Op
 const moment = require('moment')
-
-const db = new Sequelize('data', 'user', 'passs', {
-  dialect: 'postgres', 
-})
+const db = require('../../db')
 
 describe('limit', () => {
   test('should return the default value if total is less or equal to 0', () => {
-    const result  = lazyLoading()({
+    const result  = lazyLoading({
       total: -20,
     })
 
@@ -17,7 +14,7 @@ describe('limit', () => {
   })
 
   test('should return the default value if total is greater than 100', () => {
-    const result  = lazyLoading()({
+    const result  = lazyLoading({
       total: 101,
     })
 
@@ -25,7 +22,7 @@ describe('limit', () => {
   })
 
   test('should return the total value if it is correct', () => {
-    const result  = lazyLoading()({
+    const result  = lazyLoading({
       total: 100,
     })
 
@@ -35,7 +32,7 @@ describe('limit', () => {
 
 describe('offset', () => {
   test('should return 0 value if page is less than 1', () => {
-    const result  = lazyLoading()({
+    const result  = lazyLoading({
       total: 20,
       page: -1,
     })
@@ -44,7 +41,7 @@ describe('offset', () => {
   })
 
   test('should return the correct offset if total and page are correct', () => {
-    const result  = lazyLoading()({
+    const result  = lazyLoading({
       total: 20,
       page: 3,
     })
@@ -55,22 +52,31 @@ describe('offset', () => {
 
 
 describe('global search', () => {
-  test('should return formatted query containing the passed fields', () => {
-    const table1 = db.define('table1', {
+  beforeAll(() => {
+    db.define('table1', {
       name: Sequelize.STRING,
       motherName: Sequelize.STRING,
     })
 
+    db.define('table2', {
+      name: Sequelize.STRING,
+    })
+  })
+
+  test('should return formatted query containing the passed fields', () => {
     const query = {
       filters: {
-        global: {
-          fields: ['name', 'motherName'],
-          value: 'Mar'
-        },
+        table1: {
+          global: {
+            fields: ['name', 'motherName'],
+            value: 'Mar'
+          },
+        }
       }
     }
 
-    const { where }  = lazyLoading(table1)(query)
+    const { getWhereForModel }  = lazyLoading(query)
+    const where = getWhereForModel('table1')
     const orQuery = where[Operators.or]
 
     expect(orQuery).toBeTruthy()
@@ -85,20 +91,19 @@ describe('global search', () => {
   })
 
   test('should return formatted query containing only the fields available in model', () => {
-    const table1 = db.define('table1', {
-      name: Sequelize.STRING,
-    })
-
     const query = {
       filters: {
-        global: {
-          fields: ['name', 'motherName'],
-          value: 'Mar'
-        },
+        table2: {
+          global: {
+            fields: ['name', 'motherName'],
+            value: 'Mar'
+          },
+        }
       }
     }
 
-    const { where }  = lazyLoading(table1)(query)
+    const { getWhereForModel }  = lazyLoading(query)
+    const where = getWhereForModel('table2')
     const orQuery = where[Operators.or]
 
     expect(orQuery).toBeTruthy()
@@ -110,39 +115,37 @@ describe('global search', () => {
   })
 
   test('should return an empty object if nothing is passed in fields', () => {
-    const table1 = db.define('table1', {
-      name: Sequelize.STRING,
-    })
-
     const query = {
       filters: {
-        global: {
-          fields: [],
-          value: 'Mar'
-        },
+        table2: {
+          global: {
+            fields: [],
+            value: 'Mar'
+          },
+        }
       }
     }
 
-    const { where }  = lazyLoading(table1)(query)
+    const { getWhereForModel }  = lazyLoading(query)
+    const where = getWhereForModel('table2')
     const orQuery = where[Operators.or]
 
     expect(orQuery).toBeUndefined()
   })
 
   test(`should set value equal to '' if not passed`, () => {
-    const table1 = db.define('table1', {
-      name: Sequelize.STRING,
-    })
-
     const query = {
       filters: {
-        global: {
-          fields: ['name'],
-        },
+        table2: {
+          global: {
+            fields: ['name'],
+          },
+        }
       }
     }
 
-    const { where }  = lazyLoading(table1)(query)
+    const { getWhereForModel }  = lazyLoading(query)
+    const where = getWhereForModel('table2')
     const orQuery = where[Operators.or]
 
     expect(orQuery).toBeTruthy()
@@ -155,28 +158,32 @@ describe('global search', () => {
 })
 
 describe('specific search', () => {
-  test('should formatted specific field in the where object ', () => {
-    const table1 = db.define('table1', {
+  beforeAll(() => {
+    db.define('table4', {
       name: Sequelize.STRING,
       birthDay: Sequelize.DATE,
       age: Sequelize.INTEGER
     })
+  })
 
+  test('should formatted specific field in the where object ', () => {
     const query = {
       filters: {
-        specific: {
-          name: 'Vitor',
-          birthDay: {
-            start: new Date('05-29-1994'),
-            end: new Date('02-28-2019')
+        table4: {
+          specific: {
+            name: 'Vitor',
+            birthDay: {
+              start: new Date('05-29-1994'),
+              end: new Date('02-28-2019')
+            },
+            age: 32,
           },
-          age: 32,
-        },
+        }
       }
     }
 
-    const { where }  = lazyLoading(table1)(query)
-
+    const { getWhereForModel }  = lazyLoading(query)
+    const where = getWhereForModel('table4')
     expect(where).toEqual({
       name: {
         [Operators.iRegexp]: 'Vitor'
@@ -192,23 +199,21 @@ describe('specific search', () => {
   })
 
   test('should return date if start if only started was passed', () => {
-    const table1 = db.define('table1', {
-      name: Sequelize.STRING,
-      birthDay: Sequelize.DATE,
-    })
-
     const query = {
       filters: {
-        specific: {
-          name: 'Vitor',
-          birthDay: {
-            start: new Date('05-29-1994').toISOString(),
-          }
-        },
+        table4: {
+          specific: {
+            name: 'Vitor',
+            birthDay: {
+              start: new Date('05-29-1994').toISOString(),
+            }
+          },
+        }
       }
     }
 
-    const { where }  = lazyLoading(table1)(query)
+    const { getWhereForModel } = lazyLoading(query)
+    const where = getWhereForModel('table4')
 
     expect(where).toEqual({
       name: {
@@ -217,57 +222,6 @@ describe('specific search', () => {
       birthDay: {
         [Operators.gte]: moment('05-29-1994', "MM-DD-YYYY").startOf('day').toString(),
       },
-    })
-  })
-})
-
-describe('nested association', () => {
-  test('should nested field according to its type', () => {
-    const table1 = db.define('table1', {
-      name: Sequelize.STRING,
-      motherName: Sequelize.STRING,
-    })
-
-    const CarTable = db.define('car', {
-      name: Sequelize.STRING,
-    })
-
-    const table3 = db.define('table3', {
-      name: Sequelize.STRING,
-    })
-
-    table1.hasMany(CarTable)
-    table1.hasOne(table3)
-
-    const query = {
-      filters: {
-        global: {
-          fields: ['name', 'motherName', '$cars.name$'],
-          value: 'Mar'
-        },
-        specific: {
-          ['$table3.name$']: 'Mar'
-        }
-      }
-    }
-
-    const { where }  = lazyLoading(table1)(query)
-
-    expect(where).toEqual({
-      [Operators.or]: {
-        name: {
-          [Operators.iRegexp]: 'Mar',
-        },
-        motherName: {
-          [Operators.iRegexp]: 'Mar',
-        },
-        ['$cars.name$']: {
-          [Operators.iRegexp]: 'Mar',
-        }
-      },
-      '$table3.name$': {
-        [Operators.iRegexp]: 'Mar',
-      }
     })
   })
 })
