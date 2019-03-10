@@ -5,7 +5,7 @@ const StockDomain = require('../Stock')
 const CustomerDomain = require('../Customer')
 const IndividualProductDomain = require('../IndividualProduct')
 const { FieldValidationError } = require('../../errors')
-const getLazyLodingForModel = require('../../helpers/lazyLoading')
+const getLazyLoding = require('../../helpers/lazyLoading')
 
 const ReservationModel = database.model('reservation')
 const ReservationProduct = database.model('reservationProduct')
@@ -20,8 +20,6 @@ const productDomain = new ProductDomain()
 const individualProductDomain = new IndividualProductDomain()
 const stockDomain = new StockDomain()
 const customerDomain = new CustomerDomain()
-
-const getLazyLoading = getLazyLodingForModel(ReservationModel)
 
 const include = [
   {
@@ -51,12 +49,37 @@ const include = [
 
 class Reservation {
   async getAll(query) {
-    const lazyLoading = getLazyLoading(query)
+    const { limit, offset, getWhereForModel } = getLazyLoding(query)
 
-    console.log(lazyLoading.where)
     return await ReservationModel.findAndCountAll({
-      include,
-      ...lazyLoading,
+      where: getWhereForModel('reservation'),
+      include: [
+        {
+          model: CustomerModel,
+          required: true,
+        },
+        {
+          model: StockLocationModel,
+          attributes: ['name']
+        },
+        {
+          model: ReservationProduct,
+          as: 'products',
+          include: [
+            {
+              model: ProductModel,
+              attributes: ['name', 'brand', 'sku','category']
+            },
+            {
+              model: HistoryModel,
+              as: 'history'
+            },
+            IndividualProductModel,
+          ],
+        },
+      ],
+      limit,
+      offset,
     })
 
     
